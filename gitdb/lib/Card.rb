@@ -1,37 +1,48 @@
+require "json"
+
 class Card
 
-	def self.set_gid(gid)
-		@@gid = gid
-	end
-
-	def self.create(uid)
-
-	end
-
-	def self.delete(id)
-
-	end
-
-	def initialize(id)
+	def initialize gid, uid
 		
 	end
 
-	def get_data
-
+	def self::exist? gid, id
+		File::exist? "#{gid}/#{id}"
 	end
 
-	def set_data(hash)
-
+	def exist? id
+		Card::exist? @gid, id
 	end
 
-	def get_metadata
-
+	def gen_id
+		# TODO: id formart
 	end
 
-	def set_metadata(hash)
-
+	def create
+		
 	end
 
+	def access
+		
+	end
+
+	def getdata id
+		
+	end
+
+	def setdata id, hash
+	
+	end
+
+	def getmeta id
+		
+	end
+
+	def setmeta id, hash
+		
+	end
+
+	def delete id
+		
+	end
 end
-
-id
