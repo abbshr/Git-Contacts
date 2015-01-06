@@ -1,11 +1,7 @@
 require "json"
+require "gitdb/util"
 
 class Card
-
-  private
-  def gen_card_id
-    [*'a'..'z', *0..9].sample(8).join
-  end
 
   def initialize gid, uid
     
@@ -20,19 +16,27 @@ class Card
   end
 
   def create
-    
+    # Gitial::generate_code 4
   end
 
   def access
     
   end
 
-  def getdata id
+  def self::getdata id
     
   end
 
-  def setdata id, hash
+  def self::setdata id, hash
   
+  end
+
+  def getdata
+    Card::getdata @id
+  end
+
+  def setdata hash
+    Card::setdata @id, hash
   end
 
   def getmeta id

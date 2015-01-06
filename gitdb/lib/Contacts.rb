@@ -1,15 +1,12 @@
 require "rugged"
-#require "Card"
+require "json"
+require "gitdb/util"
+require "Card"
 
 class Contacts
 
   def initialize uid
     @uid = uid
-  end
-
-  private
-  def gen_contacts_id
-    [*'a'..'z', *0..9, *'A'..'Z'].sample(32).join
   end
 
   def self::exist? gid
@@ -22,7 +19,7 @@ class Contacts
 
   def create name
     # generate a unique hash code
-    while exist? @gid = gen_contacts_id end
+    while exist? @gid = Gitil::generate_code 4 end
     # create & open repository
     @repo = Rugged::Repository.init_at @gid
     # setup meta data
@@ -39,7 +36,7 @@ class Contacts
 
   def get_card_by_id id
     @repo.head.target.tree.find do |o|
-      Card.new if o[:name] == id
+      Card::getdata id if o[:name] == id
     end
   end
 
@@ -59,13 +56,32 @@ class Contacts
 
   def read_change_history
     walker = Rugged::Walker.new repo
-    walker.push repo.head.target_id
-    walker.collect.each { |c| c }
+    walker.push repo.last_commit
+    walker.collect.each { |commit| commit }
   end
 
-  def revert_to sha
-    blob = @repo.lookup sha
-    
+  # perform a "Revert" opreation
+  def revert_to sha, author, message
+    tree = @repo.lookup sha
+    tree.each do |e|
+      # construct new tree from stage
+      write_to_stage e[:name], JSON.parse @repo.lookup(e[:oid]).content
+    end
+    make_a_commit # TODO: add commit obj arguments
+  end
+
+  def write_to_stage card_id, content
+    oid = @repo.write content, :blob
+    @repo.index.read_tree @repo.head.target.tree
+    @repo.index.add :path => card_id, :oid => oid, :mode => 0100644
+  end
+
+  def make_a_commit options
+    options[:tree] = @repo.index.write_tree @repo
+    options[:parents] = @repo.empty? ? [] : [@repo.head.target].compact
+    options[:update_ref] = 'HEAD'
+    options[:commiter] = commiter.merge! :time => Time.now
+    Rugged::Commit.create @repo, options
   end
 
 end
