@@ -31,12 +31,20 @@ class Contacts
   end
 
   def get_all_cards
-    @repo.head.target.tree.collect.each { |o| o[:name] }
+    if @repo.branches.count == 0
+      []
+    else
+      @repo.head.target.tree.collect.each { |o| Card.new(@repo).access o[:name] }
+    end
   end
 
   def get_card_by_id id
-    @repo.head.target.tree.find do |o|
-      Card::getdata id if o[:name] == id
+    if @repo.branches.count == 0
+      nil
+    else
+      @repo.head.target.tree.find do |o|
+        Card.new(@repo).access id if o[:name] == id
+      end
     end
   end
 
@@ -55,27 +63,34 @@ class Contacts
   end
 
   def read_change_history
-    walker = Rugged::Walker.new repo
-    walker.push repo.last_commit
-    walker.collect.each { |commit| commit }
+    if @repo.branches.count == 0
+      []
+    else
+      walker = Rugged::Walker.new repo
+      walker.push repo.last_commit
+      walker.collect.each { |commit| commit }
+    end
   end
 
   # perform a "Revert" opreation
   def revert_to sha, author, message
+    if @repo.branches.count == 0
+      return nil
+    end
+
     tree = @repo.lookup sha
     tree.each do |e|
       # construct new tree from stage
       write_to_stage e[:name], JSON.parse @repo.lookup(e[:oid]).content
     end
     # get committer info
-    committer = get_card_by_id(@uid).merge :time => Time.now
+    committer = get_card_by_id(@uid).getdata.sub_hash(:name, :email).merge :time => Time.now
     # commit to repo
     make_a_commit :author => author, :message => message, :committer => committer
   end
 
   def write_to_stage card_id, content
     oid = @repo.write content, :blob
-    @repo.index.read_tree @repo.head.target.tree
     @repo.index.add :path => card_id, :oid => oid, :mode => 0100644
   end
 
