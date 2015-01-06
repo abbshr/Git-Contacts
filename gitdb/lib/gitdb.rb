@@ -1,8 +1,7 @@
-require "gitdb/version"
+#require "gitdb/version"
 
 module Gitdb
-  STORAGE_PATH = Dir::pwd + '/storage'
-  
-  require 'Card'
-  require "Contacts"
+  STORAGE_PATH = File::expand_path '../../storage', __FILE__
+  #require 'Card'
+  #require "Contacts"
 end

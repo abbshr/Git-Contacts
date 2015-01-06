@@ -27,7 +27,7 @@ class Contacts
   end
 
   def access gid
-    @repo = Rugged::Repository.new gid
+    @repo = Rugged::Repository.new gid if exist? gid
   end
 
   def get_all_cards
@@ -67,7 +67,10 @@ class Contacts
       # construct new tree from stage
       write_to_stage e[:name], JSON.parse @repo.lookup(e[:oid]).content
     end
-    make_a_commit # TODO: add commit obj arguments
+    # get committer info
+    committer = get_card_by_id(@uid).merge :time => Time.now
+    # commit to repo
+    make_a_commit :author => author, :message => message, :committer => committer
   end
 
   def write_to_stage card_id, content
@@ -80,8 +83,6 @@ class Contacts
     options[:tree] = @repo.index.write_tree @repo
     options[:parents] = @repo.empty? ? [] : [@repo.head.target].compact
     options[:update_ref] = 'HEAD'
-    options[:commiter] = commiter.merge! :time => Time.now
     Rugged::Commit.create @repo, options
   end
-
 end
