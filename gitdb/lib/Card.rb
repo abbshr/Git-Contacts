@@ -95,7 +95,11 @@ class Card
   end
 
   def setmeta hash
-    @content[:meta] = hash
+    h = Gitil::meta_keys_of_card.map { |key| key.to_sym } & hash.keys
+    h.each do |sym_key|
+      @content[:meta][sym_key] = hash[sym_key]
+    end
+    write_to_stage id, JSON.pretty_generate @content
   end
 
   def delete
