@@ -9,6 +9,11 @@ class GCUser
     false
   end
 
+  def self::uid_exist? uid
+    return true if redis.get('uid_'+uid)
+    false
+  end
+
   def self::create username, hash
     if !GCUser::exist? username
       data = {}
@@ -16,7 +21,9 @@ class GCUser
         key_sym = key.to_sym
         data[key_sym] = hash[key_sym]
       end
-      redis.set('user_'+username, data.to_json)
+      while GCUser::uid_exist? data[:uid] = GCUtil::generate_code 4 end
+      redis.set('user_'+username, data.to_json) # remember to add mutex under multi-threading
+      redis.set('uid_'+data[:uid], 'user_'+username)
     end
   end
 
