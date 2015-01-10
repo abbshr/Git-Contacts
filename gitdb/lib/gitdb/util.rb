@@ -20,4 +20,5 @@ module Gitil
       end
       tmp
     end
+  end
 end
