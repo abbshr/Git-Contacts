@@ -59,9 +59,13 @@ module Gitdb
       o = @repo.head.target.tree.find do |o|
         o if o[:name] == id
       end
-      @content = JSON.parse @repo.lookup(o[:oid]).content, { symbolize_names: true }
-      @uid = @content[:owner]
-      self
+      if o != nil
+        @content = JSON.parse @repo.lookup(o[:oid]).content, { symbolize_names: true }
+        @uid = @content[:owner]
+        self
+      else
+        nil
+      end
     end
 
     def self::getdata repo, id
@@ -161,9 +165,7 @@ module Gitdb
       if @repo.branches.count == 0
         nil
       else
-        @repo.head.target.tree.find do |o|
-          Card.new(@repo).access id if o[:name] == id
-        end
+        Card.new(@repo).access id
       end
     end
 
@@ -181,17 +183,20 @@ module Gitdb
       @repo.config['repo.gid'] = hash[:gid] if hash.member? :gid
     end
 
+    # return a set of tree oids 
     def read_change_history
       if @repo.branches.count == 0
         []
       else
         walker = Rugged::Walker.new repo
         walker.push repo.last_commit
-        walker.collect.each { |commit| commit }
+        walker.collect.each { |commit| commit.tree.oid }
       end
     end
 
     # perform a "Revert" opreation
+    # @sha: tree oid, NOT a commit oid
+    #  => commit.tree.oid
     def revert_to sha, author, message
       if @repo.branches.count == 0
         return nil
@@ -200,14 +205,15 @@ module Gitdb
       tree = @repo.lookup sha
       tree.each do |e|
         # construct new tree from stage
-        write_to_stage e[:name], JSON.parse(@repo.lookup(e[:oid]).content)
+        write_to_stage e[:name], @repo.lookup(e[:oid]).content
       end
       # get committer info
-      committer = get_card_by_id(@uid).getdata.sub_hash(:name, :email).merge :time => Time.now
+      # committer = get_card_by_id(@uid).getdata.sub_hash(:name, :email).merge :time => Time.now
       # commit to repo
-      make_a_commit :author => author, :message => message, :committer => committer
+      make_a_commit :author => author, :message => message, :committer => author
     end
 
+    private
     def write_to_stage card_id, content
       oid = @repo.write content, :blob
       @repo.index.add :path => card_id, :oid => oid, :mode => 0100644
