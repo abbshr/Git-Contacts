@@ -9,7 +9,7 @@ module GCUtil
   end
 
   def self::contacts_keys
-    ["repo", "users", "admins"]
+    ["name", "repo", "users", "admins"]
   end
 
   def self::invitation_keys

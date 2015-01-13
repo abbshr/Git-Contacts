@@ -2,7 +2,6 @@ require 'sinatra'
 require 'redis-sinatra'
 require 'json'
 require 'redis'
-require 'digest/sha1'
 require 'GCService'
 
 class GGApp < Sinatra::Base

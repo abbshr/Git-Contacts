@@ -14,6 +14,18 @@ class GCUser
     false
   end
 
+  def self::uid_to_username uid
+    if GCUser::uid_exist? uid
+      redis.get('uid_'+uid)
+    end
+  end
+
+  def self::username_to_uid username
+    if GCUser::exist?username
+      redis.get('user_'+username)
+    end
+  end
+
   def self::create username, hash
     if !GCUser::exist? username
       data = {}
