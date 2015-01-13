@@ -15,14 +15,13 @@ class GCUser
   end
 
   def self::uid_to_username uid
-    if GCUser::uid_exist? uid
-      redis.get('uid_'+uid)
-    end
+    redis.get('uid_'+uid)
   end
 
   def self::username_to_uid username
-    if GCUser::exist?username
-      redis.get('user_'+username)
+    if s = redis.get('user_'+username)
+      user = JSON.parse(s, :symbolize_names => true)
+      user[:uid]
     end
   end
 
