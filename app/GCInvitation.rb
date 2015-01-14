@@ -41,15 +41,6 @@ class GCInvitation
     uid == getuid
   end
 
-  def accept uid
-    if can_accept? uid
-      # add uid to contacts
-      # add contacts to 
-      # to-do
-      GCInvitation::delete @code
-    end
-  end
-
   def redis
     # should new from config file
     @redis = Redis.new if !@redis

@@ -17,7 +17,7 @@ module GCUtil
   end
 
   def self::request_keys
-    ["uid", "action", "content"]
+    ["uid", "gid", "action", "card_id", "content"]
   end
 
 end

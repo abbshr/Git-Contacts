@@ -132,7 +132,7 @@ class GGApp < Sinatra::Base
    return_message = {}
     status = 401
     if uid = check_token
-      if return_message[:card_id] = GCService::new_contacts_card uid params[:contacts_id] @request_payload
+      if return_message[:card_id] = GCService::add_contacts_card uid params[:contacts_id] @request_payload
         status = 200
       else
         return_message[:errmsg] = "Create card failed."
