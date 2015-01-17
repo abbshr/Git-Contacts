@@ -1,7 +1,7 @@
-require './GCUser.rb'
-require './GCRequest.rb'
-require './GCContacts.rb'
-require './GCInviation.rb'
+require 'GCUser'
+require 'GCRequest'
+require 'GCContacts'
+require 'GCInviation'
 require 'digest/sha1'
 
 module GCService

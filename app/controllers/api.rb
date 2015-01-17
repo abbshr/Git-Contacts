@@ -1,7 +1,10 @@
-require 'sinatra'
-require 'redis-sinatra'
+Dir::chdir '..'
+$LOAD_PATH << Dir::pwd unless $LOAD_PATH.include? Dir::pwd
+
+require 'sinatra/base'
+#require 'redis-sinatra'
 require 'json'
-require 'redis'
+#require 'redis'
 require 'GCService'
 
 class GGApp < Sinatra::Base
@@ -23,7 +26,7 @@ class GGApp < Sinatra::Base
 
   end
 
-  def check_token
+    def check_token
     if token = @request_payload[:token]
       settings.cache.read('token_'+token)
     end
@@ -38,8 +41,9 @@ class GGApp < Sinatra::Base
     status = 401
     if GCService::password_valid? @request_payload
       new_token = nil
-      while token_exist? new_token = GCUtil::generate_code 16 end
-      settings.cache.write('token_'+new_token, GCUser::username_to_uid @request_payload[:email])
+      while token_exist?(new_token = GCUtil::generate_code(16))
+      end
+      settings.cache.write "token_#{new_token}", GCUser::username_to_uid(@request_payload[:email])
       return_message[:token] = new_token
       status = 200
     else
@@ -87,10 +91,10 @@ class GGApp < Sinatra::Base
   end
 
   post '/contacts' do
-   return_message = {}
+    return_message = {}
     status = 401
     if uid = check_token
-      if return_message[:contacts_id] = GCService::add_contacts uid @request_payload
+      if return_message[:contacts_id] = GCService::add_contacts(uid, @request_payload)
         status = 200
       else
         return_message[:errmsg] = "Create contacts failed."
@@ -117,7 +121,7 @@ class GGApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = check_token
-      if return_message[:card] = GCService::get_contacts_card uid params[:contacts_id] params[:card_id]
+      if return_message[:card] = GCService::get_contacts_card(uid params[:contacts_id], params[:card_id])
         status = 200
       else
         return_message[:errmsg] = "Card not found."
@@ -132,7 +136,7 @@ class GGApp < Sinatra::Base
    return_message = {}
     status = 401
     if uid = check_token
-      if return_message[:card_id] = GCService::add_contacts_card uid params[:contacts_id] @request_payload
+      if return_message[:card_id] = GCService::add_contacts_card(uid, params[:contacts_id], @request_payload)
         status = 200
       else
         return_message[:errmsg] = "Create card failed."
@@ -147,7 +151,7 @@ class GGApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = check_token
-      if GCService::edit_contacts_card uid params[:contacts_id] params[:card_id] @request_payload  
+      if GCService::edit_contacts_card( uid, params[:contacts_id], params[:card_id], @request_payload)  
         status = 200
       else
         return_message[:errmsg] = "Edit card failed."
@@ -162,7 +166,7 @@ class GGApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = check_token
-      if GCService::delete_contacts_card uid params[:contacts_id] params[:card_id]
+      if GCService::delete_contacts_card( uid, params[:contacts_id], params[:card_id])
         status = 200
       else
         return_message[:errmsg] = "Delete card failed."
@@ -189,7 +193,7 @@ class GGApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = check_token
-      if GCService::edit_request_status uid params[:contacts_id] params[:request_id] @request_payload
+      if GCService::edit_request_status( uid, params[:contacts_id], params[:request_id], @request_payload)
         status = 200
       else
         return_message[:errmsg] = "Change request status failed."
@@ -205,7 +209,7 @@ class GGApp < Sinatra::Base
     status = 401
     if uid = check_token
       status = 200
-      return_message[:users] = GCService::get_contacts_users uid params[:contacts_id]
+      return_message[:users] = GCService::get_contacts_users( uid ,params[:contacts_id])
     else
       return_message[:errmsg] = "Token invalid."
     end
@@ -216,7 +220,7 @@ class GGApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = check_token
-      if GCService::edit_contacts_user_privileges uid params[:contacts_id] params[:user_id] @request_payload
+      if GCService::edit_contacts_user_privileges( uid, params[:contacts_id], params[:user_id] ,@request_payload)
         status = 200
       else
         return_message[:errmsg] = "Change user privilege failed."
@@ -231,7 +235,7 @@ class GGApp < Sinatra::Base
    return_message = {}
     status = 401
     if uid = check_token
-      if GCService::edit_contacts_meta uid params[:contacts_id] @request_payload
+      if GCService::edit_contacts_meta(uid, params[:contacts_id], @request_payload)
         status = 200
       else
         return_message[:errmsg] = "Edit contacts metadata failed."
@@ -246,7 +250,7 @@ class GGApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = check_token
-      if return_message[:request_id] = GCService::invite_contacts_user uid params[:contacts_id] @request_payload
+      if return_message[:request_id] = GCService::invite_contacts_user(uid, params[:contacts_id], @request_payload)
         status = 200
       else
         return_message[:errmsg] = "Create invitation failed."
@@ -261,7 +265,7 @@ class GGApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = check_token
-      if GCService::edit_invitation_status uid @request_payload
+      if GCService::edit_invitation_status( uid, @request_payload)
         status = 200
       else
         return_message[:errmsg] = "Edit invitation failed."
@@ -276,7 +280,7 @@ class GGApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = check_token
-      if GCService::edit_contacts_user_privileges uid params[:contacts_id] params[:user_id]
+      if GCService::edit_contacts_user_privileges( uid, params[:contacts_id], params[:user_id])
         status = 200
       else
         return_message[:errmsg] = "Delete user from contacts failed."
