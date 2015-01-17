@@ -93,7 +93,7 @@ module Gitdb
         @content[sym_key] = hash[sym_key]
       end
       # 每次对数据的修改会触发一次"写入暂存区"
-      write_to_stage @id, JSON.pretty_generate(@content)
+      add_to_stage @id, JSON.pretty_generate(@content)
     end
 
     def getmeta
@@ -104,13 +104,13 @@ module Gitdb
       @content[:meta] = hash
     end
     
-    # Notice: 调用delete之后需要先commit, 然后才能继续调用write_to_stage
+    # Notice: 调用delete之后需要先commit, 然后才能继续调用add_to_stage
     def delete
       @repo.index.read_tree @repo.head.target.tree unless @repo.branches.count == 0
       @repo.index.find { |blob| @repo.index.remove blob[:path] if blob[:path] == @id }
     end
 
-    def write_to_stage id, content
+    def add_to_stage id, content
       oid = @repo.write content, :blob
       @repo.index.read_tree @repo.head.target.tree unless @repo.branches.count == 0
       @repo.index.add :path => id, :oid => oid, :mode => 0100644

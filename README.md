@@ -1,6 +1,7 @@
 # Gitdb
 
-TODO: Write a gem description
+**Git-Contacts** backend data engine  
+a simple data storage based on git, designed for Git-Contacts
 
 ## Installation
 
@@ -20,12 +21,41 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+#### Module: `Gitdb`
 
-## Contributing
++ constant: `Gitdb::STORAGE_PATH`
++ class method: `setup_storage`
 
-1. Fork it ( https://github.com/[my-github-username]/gitdb/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+#### Class: `Gitdb::Contacts`
+
++ class method: `exist?(gid)`
+
+##### instance: `Gitdb::Contacts.new(uid)`
+
++ property: `repo`
++ method: `exist?(gid)`
++ method: `create(gid)`
++ method: `access(gid)`
++ method: `getmeta`
++ method: `setmeta(Hash)`
++ method: `get_all_cards`
++ method: `get_card_by_id(id)`
++ method: `read_change_history`
++ method: `revert_to(sha, authorhash, message)`
++ method: `make_a_commit(optionhash)`
+
+#### Class: `Gitdb::Card`
+
++ class method: `exist?(repo, id)`
+
+##### instance: `Gitdb::Card.new(repo)`
+
++ method: `create(uid)`
++ method: `access(id)`
++ method: `format_card(id, uid)`
++ method: `getdata`
++ method: `setdata(Hash)`
++ method: `getmeta`
++ method: `setmeta(Hash)`
++ method: `delete`
++ method: `add_to_stage(id, content)`
