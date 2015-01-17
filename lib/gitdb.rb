@@ -1,10 +1,10 @@
 require "json"
 require "rugged"
-require_relative "gitdb/util"
-require_relative "gitdb/version"
+require "gitdb/util"
+require "gitdb/version"
 
-require_relative 'gitdb/Card'
-require_relative 'gitdb/Contacts'
+require 'gitdb/Card'
+require 'gitdb/Contacts'
 
 module Gitdb
   
@@ -16,4 +16,5 @@ module Gitdb
     Dir::mkdir STORAGE_PATH unless Dir::exist? STORAGE_PATH
   end
 
+  setup_storage
 end
