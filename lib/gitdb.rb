@@ -9,7 +9,7 @@ require_relative 'gitdb/Contacts'
 module Gitdb
   
   # 主存储目录
-  STORAGE_PATH = File::expand_path '../../../storage', __FILE__
+  STORAGE_PATH = "#{Dir::pwd}/storage"
 
   # 检查并创建主存储目录
   def self::setup_storage
