@@ -1,17 +1,14 @@
-Dir::chdir '..'
-$LOAD_PATH << Dir::pwd unless $LOAD_PATH.include? Dir::pwd
+$LOAD_PATH << "#{Dir::pwd}/lib" unless $LOAD_PATH.include? "#{Dir::pwd}/lib"
 
 require 'sinatra/base'
-#require 'redis-sinatra'
+require 'redis-sinatra'
 require 'json'
-#require 'redis'
+require 'redis'
 require 'GCService'
 
-class GGApp < Sinatra::Base
+class GCApp < Sinatra::Base
   # redis-sinatra cache
   register Sinatra::Cache
-
-  set :port, 8080
 
   # before configuration
   before do
@@ -23,7 +20,13 @@ class GGApp < Sinatra::Base
     end
 
     @request_payload[:token] = @request_payload[:token] || params[:token]
+  end
 
+  # global configuration
+  configure do
+    set :port, 8080
+    set :logging, true
+    set :lock, true
   end
 
     def check_token
