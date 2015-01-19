@@ -3,7 +3,7 @@ module Gitdb
   class Card
 
     # 线程锁
-    @@lock = false
+    @@lock = Mutex.new
 
     def initialize repo
       @repo = repo
@@ -39,25 +39,19 @@ module Gitdb
     end
     
     def create uid
-      # 等待资源可用
-      loop do
-        break unless @@lock
-      end
-      # 锁定资源
-      @@lock = true
 
-      # 生成唯一的名片id
-      while exist?(@id = Gitil::generate_code(4)) 
-      end
-      # 记录名片创建者id
-      @uid = uid
-      # 用默认格式初始化名片可读内容
-      @content = format_card @id, @uid
-      # 添加到暂存区
-      add_to_stage @id, JSON.pretty_generate(@content)
-
-      # 释放资源
-      @@lock = false
+      # 同步信号量
+      @@lock.synchronize {
+        # 生成唯一的名片id
+        while exist?(@id = Gitil::generate_code(4)) 
+        end
+        # 记录名片创建者id
+        @uid = uid
+        # 用默认格式初始化名片可读内容
+        @content = format_card @id, @uid
+        # 添加到暂存区
+        add_to_stage @id, JSON.pretty_generate(@content)
+      }
       
       # 返回Card实例
       self

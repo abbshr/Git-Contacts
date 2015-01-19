@@ -1,5 +1,6 @@
 require "json"
 require "rugged"
+require "thread"
 require "gitdb/util"
 require "gitdb/version"
 

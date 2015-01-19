@@ -3,7 +3,7 @@ module Gitdb
   class Contacts
 
     # 线程锁
-    @@lock = false
+    @@lock = Mutex.new
 
     attr_accessor 'repo'
     
@@ -20,20 +20,16 @@ module Gitdb
     end
 
     def create name
-      # 等待资源可用
-      loop do
-        break unless @@lock
-      end
-      # 锁定资源
-      @@lock = true
 
-      # 生成联系人的唯一编码
-      while exist?(@gid = Gitil::generate_code(4)) 
-      end
-      # 创建并打开git仓库
-      @repo = Rugged::Repository.init_at "#{STORAGE_PATH}/#{@gid}"
-      # 释放资源
-      @@lock = false
+      # 同步信号量
+      @@lock.synchronize {
+        # 生成联系人的唯一编码
+        while exist?(@gid = Gitil::generate_code(4)) 
+        end
+        # 创建并打开git仓库
+        @repo = Rugged::Repository.init_at "#{STORAGE_PATH}/#{@gid}"
+      }
+      
       # 设置元信息
       setmeta :name => name, :gid => @gid, :owner => @uid
       # 读取最后一次提交指向的tree的数据到暂存区
