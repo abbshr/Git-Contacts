@@ -5,7 +5,7 @@ module Gitil
   end
 
   def self::data_keys_of_card
-    ["firstname", "lastname", "mobile", "phone", "email", "birthday", "address", "im"]
+    ["firstname", "lastname", "mobile", "phone", "email", "birthday", "address", "im", "note"]
   end
 
   def self::meta_keys_of_card

@@ -77,26 +77,6 @@ module Gitdb
         nil
       end
     end
-    
-    def self::getdata repo, id
-      Card.new(repo).access(id).getdata
-    end
-
-    def self::setdata repo, id, hash
-      Card.new(repo).access(id).setdata hash
-    end
-
-    def self::getmeta repo, id
-      Card.new(repo).access(id).getmeta
-    end
-
-    def self::setmeta repo, id, hash
-      Card.new(repo).access(id).setmeta hash
-    end
-
-    def self::delete repo, id
-      Card.new(repo).access(id).delete
-    end
 
     def getdata
       data = @content.clone
