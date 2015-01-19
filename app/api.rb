@@ -27,9 +27,10 @@ class GCApp < Sinatra::Base
     set :port, 8080
     set :logging, true
     set :lock, true
+    set :PREFIX, '/api'
   end
 
-    def check_token
+  def check_token
     if token = @request_payload[:token]
       settings.cache.read('token_'+token)
     end
@@ -293,5 +294,4 @@ class GCApp < Sinatra::Base
     end
     [status, return_message.to_json]
   end
-
 end
