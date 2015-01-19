@@ -30,19 +30,19 @@ Or install it yourself as:
 
 + class method: `exist?(gid)`
 
-##### instance: `Gitdb::Contacts.new(uid)`
+##### instance: `Gitdb::Contacts.new(user_id)`
 
 + property: `repo`
-+ method: `exist?(gid)`
-+ method: `create(gid)`
-+ method: `access(gid)`
++ method: `exist?(contacts_id)`
++ method: `create(contacts_name)`
++ method: `access(contacts_id)`
 + method: `getmeta`
 + method: `setmeta(Hash)`
 + method: `get_all_cards`
-+ method: `get_card_by_id(id)`
++ method: `get_card_by_id(card_id)`
 + method: `read_change_history`
-+ method: `revert_to(sha, authorhash, message)`
-+ method: `make_a_commit(optionhash)`
++ method: `revert_to(sha, {})`
++ method: `make_a_commit({})`
 
 #### Class: `Gitdb::Card`
 
@@ -50,8 +50,8 @@ Or install it yourself as:
 
 ##### instance: `Gitdb::Card.new(repo)`
 
-+ method: `create(uid)`
-+ method: `access(id)`
++ method: `create(user_id)`
++ method: `access(card_id)`
 + method: `format_card(id, uid)`
 + method: `getdata`
 + method: `setdata(Hash)`

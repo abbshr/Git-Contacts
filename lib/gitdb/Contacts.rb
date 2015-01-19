@@ -2,6 +2,9 @@
 module Gitdb
   class Contacts
 
+    # 线程锁
+    @@lock = false
+
     attr_accessor 'repo'
     
     def initialize uid
@@ -17,13 +20,24 @@ module Gitdb
     end
 
     def create name
+      # 等待资源可用
+      loop do
+        break unless @@lock
+      end
+      # 锁定资源
+      @@lock = true
+
       # 生成联系人的唯一编码
       while exist?(@gid = Gitil::generate_code(4)) 
       end
       # 创建并打开git仓库
       @repo = Rugged::Repository.init_at "#{STORAGE_PATH}/#{@gid}"
+      # 释放资源
+      @@lock = false
       # 设置元信息
-      setmeta :name => name, :gid => @gid, :uid => @uid
+      setmeta :name => name, :gid => @gid, :owner => @uid
+      # 读取最后一次提交指向的tree的数据到暂存区
+      @repo.index.read_tree @repo.last_commit.tree unless @repo.head_unborn?
       # 返回Contacts实例
       self
     end
@@ -31,6 +45,8 @@ module Gitdb
     def access gid
       if exist?(@gid = gid)
         @repo = Rugged::Repository.new "#{STORAGE_PATH}/#{gid}"
+        # 读取最后一次提交指向的tree的数据到暂存区
+        @repo.index.read_tree @repo.last_commit.tree unless @repo.head_unborn?
         self
       else
         nil
@@ -39,7 +55,7 @@ module Gitdb
     
     # 返回Card实例集合
     def get_all_cards
-      if @repo.branches.count == 0
+      if @repo.head_unborn?
         []
       else
         @repo.head.target.tree.collect.each { |o| Card.new(@repo).access o[:name] }
@@ -48,7 +64,7 @@ module Gitdb
     
     # 返回Card实例
     def get_card_by_id id
-      if @repo.branches.count == 0
+      if @repo.head_unborn?
         nil
       else
         Card.new(@repo).access id
@@ -58,7 +74,7 @@ module Gitdb
     def getmeta
       @meta = {
         :name => @repo.config['repo.name'],
-        :uid => @repo.config['repo.owner'],
+        :owner => @repo.config['repo.owner'],
         :gid => @repo.config['repo.gid']
       }
     end
@@ -69,46 +85,48 @@ module Gitdb
       @repo.config['repo.gid'] = hash[:gid] if hash.member? :gid
     end
 
-    # 返回commit对象指向的tree-oid集合
+    # 返回commit对象oid
     def read_change_history
-      if @repo.branches.count == 0
+      if @repo.head_unborn?
         []
       else
         walker = Rugged::Walker.new repo
         walker.push repo.last_commit
-        walker.collect.each { |commit| commit.tree.oid }
+        walker.collect.each { |commit| commit.oid }
       end
     end
 
     # 等同于git工具的 "Revert"操作
-    # @sha: tree oid, NOT a commit oid
-    # 因为回滚需要的是tree而不是commit
-    #  => commit.tree.oid
-    def revert_to sha, author, message
-      if @repo.branches.count == 0
-        return nil
-      end
-
-      tree = @repo.lookup sha
-      tree.each do |e|
-        # 遍历sha tree, 重新构造tree并写入暂存区
-        write_to_stage e[:name], @repo.lookup(e[:oid]).content
-      end
-      # get committer info
-      # committer = get_card_by_id(@uid).getdata.sub_hash(:name, :email).merge :time => Time.now
+    # @sha = commit oid
+    # @options = { 
+    #   :message => '', 
+    #   :author => {:name=> '', :email=> '', :time=> Time}, 
+    #   :committer => {:name=> '', :email=> '', :time=> Time} 
+    # }
+    #
+    def revert_to sha, options
+      return nil if @repo.head_unborn?
+      commit = @repo.lookup sha
+      tree = commit.tree
+      # 构造tree
+      @repo.index.read_tree tree
       # 提交暂存区的tree
-      make_a_commit :author => author, :message => message, :committer => author
-    end
-
-    private
-    def write_to_stage card_id, content
-      oid = @repo.write content, :blob
-      @repo.index.add :path => card_id, :oid => oid, :mode => 0100644
+      make_a_commit options
     end
     
     # 生成一个commit对象
     # 每次修改最终要调用
+    # @options = { 
+    #   :message => '', 
+    #   :author => {:name=> '', :email=> '', :time=> Time}, 
+    #   :committer => {:name=> '', :email=> '', :time=> Time} 
+    # }
+    #
     def make_a_commit options
+      if @repo.index.count == 0 && @repo.head_unborn?
+        return nil
+      end
+      options[:message] = 'make a commit' unless options.include? :message
       options[:tree] = @repo.index.write_tree @repo
       options[:parents] = @repo.empty? ? [] : [@repo.head.target].compact
       options[:update_ref] = 'HEAD'

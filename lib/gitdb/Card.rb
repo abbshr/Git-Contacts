@@ -2,12 +2,16 @@
 module Gitdb
   class Card
 
+    # 线程锁
+    @@lock = false
+
     def initialize repo
       @repo = repo
     end
 
     def self::exist? repo, id
-      repo.head.target.tree.find { |o| o[:name] == id } unless repo.branches.count == 0
+      # 检查stage而不是tree
+      nil != repo.index.get(id)
     end
 
     def exist? id
@@ -35,6 +39,13 @@ module Gitdb
     end
     
     def create uid
+      # 等待资源可用
+      loop do
+        break unless @@lock
+      end
+      # 锁定资源
+      @@lock = true
+
       # 生成唯一的名片id
       while exist?(@id = Gitil::generate_code(4)) 
       end
@@ -42,6 +53,12 @@ module Gitdb
       @uid = uid
       # 用默认格式初始化名片可读内容
       @content = format_card @id, @uid
+      # 添加到暂存区
+      add_to_stage @id, JSON.pretty_generate(@content)
+
+      # 释放资源
+      @@lock = false
+      
       # 返回Card实例
       self
     end
@@ -104,15 +121,12 @@ module Gitdb
       @content[:meta] = hash
     end
     
-    # Notice: 调用delete之后需要先commit, 然后才能继续调用add_to_stage
     def delete
-      @repo.index.read_tree @repo.head.target.tree unless @repo.branches.count == 0
-      @repo.index.find { |blob| @repo.index.remove blob[:path] if blob[:path] == @id }
+      @repo.index.remove @id
     end
 
     def add_to_stage id, content
       oid = @repo.write content, :blob
-      @repo.index.read_tree @repo.head.target.tree unless @repo.branches.count == 0
       @repo.index.add :path => id, :oid => oid, :mode => 0100644
     end
   end
