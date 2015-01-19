@@ -4,7 +4,7 @@ require 'sinatra/base'
 require 'redis-sinatra'
 require 'json'
 require 'redis'
-require 'GCService'
+require 'gitcontacts'
 
 class GCApp < Sinatra::Base
   # redis-sinatra cache
