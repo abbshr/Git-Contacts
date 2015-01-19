@@ -1,6 +1,6 @@
 require 'json'
 require 'redis'
-require 'GCUtil'
+require 'gitcontacts/GCUtil'
 
 class GCUser
 
