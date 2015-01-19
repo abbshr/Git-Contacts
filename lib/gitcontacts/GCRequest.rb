@@ -45,11 +45,50 @@ class GCRequest
     uid == getuid
   end
 
-  def allow msg
+  def allow
     # allow merge here
-    contacts.make_a_commit :author => { :name => , :email => , :time => }, 
-                           :committer => { :name => , :email => , :time => Time.now}, 
-                           :message => msg
+    #
+    # 依据请求文本, 执行gitdb操作
+    # e.g.
+    # 请求格式:
+    #
+    # req = {  
+    #   gid_1: [{
+    #     => type: setmeta/setdata/delete
+    #     => card: id,
+    #     => data: {}
+    #   },{
+    #     => type: setmeta/setdata/delete
+    #     => card: id,
+    #     => data: {}
+    #   }, ...],
+    #   gid_2: [{
+    #     => type: setmeta/setdata/delete
+    #     => card: id,
+    #     => data: {}
+    #   },{
+    #     => type: setmeta/setdata/delete
+    #     => card: id,
+    #     => data: {}
+    #   }, ...],
+    #   ...
+    # }
+    # 
+    # req.each do |gid|
+      # contacts = Contacts.new(uid).access(gid)
+      # req[gid].each do |reqhash|
+        # card = Card.new(contacts.repo).access(reqhash.card)
+        # if reqhash.type == :setmeta
+        #   card.setmeta data
+        # elif reqhash.type == :setdata
+        #   card.setdata data
+        # else
+        #   card.delete
+        # end
+      # end
+      # contacts.make_a_commit :author => { :name => , :email => , :time => }, 
+      #                        :committer => { :name => , :email => , :time => Time.now}
+    # end
   end
 
   def deny
