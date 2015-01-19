@@ -1,11 +1,15 @@
-require 'gitcontacts/GCUser'
-require 'gitcontacts/GCRequest'
-require 'gitcontacts/GCContacts'
-require 'gitcontacts/GCInviation'
+require 'redis'
+require 'redis-objects'
+
+require 'gitcontacts/util'
+require 'gitcontacts/User'
+require 'gitcontacts/Request'
+require 'gitcontacts/Contacts'
+require 'gitcontacts/Inviation'
 require "gitcontacts/version"
 require 'digest/sha1'
 
-module GCService
+module GitContacts
 
   def self::user_exist? email
     GCUser::exist? email

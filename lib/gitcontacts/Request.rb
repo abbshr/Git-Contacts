@@ -1,51 +1,44 @@
-require "gitdb"
+module GitContacts
 
-class GCRequest
+  class Request
 
-  def self::exist? qid
-    return true if redis.get('request_'+qid)
-    false
-  end
-
-  def self::create hash
-    qid = nil
-    while GCRequest::exist? qid = GCUtil::generate_code(4) 
-    end 
-    data = {}
-    GCUtil::request_keys.each do |key|
-      data[key] = hash[key]
+    def self::exist? request_id
+      return true if RequestObject.find_by_name request_id
     end
-    redis.set('request_'+gid, data.to_json)
-    qid
-  end
 
-  def self::delete qid
-    redis.del('request_'+qid) > 0
-  end
+    def self::create hash
 
-  def initialize qid
-    @qid = qid
-    @info = JSON.parse(redis.get('request_'+qid), :symbolize_names => true) if GCRequest::exist? qid
-  end
+    end
 
-  def getuid
-    @info[:uid] if @info
-  end
+    def self::delete request_id
+    
+    end
 
-  def getaction
-    @info[:action] if @info
-  end
+    def initiazlie request_id
+      @obj =  RequestObject.find_by_name request_id
+    end
 
-  def getcontent
-    @info[:content] if @info
-  end
+    def getuid
+      @obj.uid if @obj
+    end
 
+    def getgid
+      @obj.gid if @obj
+    end
 
-  def can_auto_merge? uid
-    uid == getuid
-  end
+    def getaction
+      @obj.action if @obj
+    end
 
-  def allow
+    def getcard_id
+      @obj.card_id if @obj
+    end
+
+    def getcontent
+      @obj.content if @obj
+    end
+
+    def allow
     # allow merge here
     #
     # 依据请求文本, 执行gitdb操作
@@ -89,19 +82,25 @@ class GCRequest
       # contacts.make_a_commit :author => { :name => , :email => , :time => }, 
       #                        :committer => { :name => , :email => , :time => Time.now}
     # end
+    end
+
+    def deny
+      # deny merge here
+      GitContacts::Request::delete @obj.request_id
+    end
+
   end
 
-  def deny
-    # deny merge here
-    GCRequest::delete(@qid)
-  end
+  class RequestObject < ActiveRecord::Base
+    include Redis::Objects
 
-  def redis
-    # should new from config file
-    @redis = Redis.new if !@redis
-    @redis
-  end
+    value :request_id
+    value :uid
+    value :gid
+    value :card_id
+    value :action
+    hash_key :content
 
-  private :redis
+  end
 
 end
