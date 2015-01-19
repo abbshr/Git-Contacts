@@ -1,3 +1,0 @@
-require './api'
-
-run GCApp
