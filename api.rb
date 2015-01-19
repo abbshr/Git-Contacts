@@ -1,4 +1,4 @@
-$LOAD_PATH << "#{Dir::pwd}/lib" unless $LOAD_PATH.include? "#{Dir::pwd}/lib"
+#$LOAD_PATH << "#{Dir::pwd}/lib" unless $LOAD_PATH.include? "#{Dir::pwd}/lib"
 
 require 'sinatra/base'
 require 'redis-sinatra'
