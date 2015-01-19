@@ -1,3 +1,5 @@
+require "gitdb"
+
 class GCRequest
 
   def self::exist? qid
@@ -7,11 +9,11 @@ class GCRequest
 
   def self::create hash
     qid = nil
-    while GCRequest::exist? qid = GCUtil::generate_code 4 end 
+    while GCRequest::exist? qid = GCUtil::generate_code(4) 
+    end 
     data = {}
     GCUtil::request_keys.each do |key|
-      key_sym = key.to_sym
-      data[key_sym] = hash[key_sym]
+      data[key] = hash[key]
     end
     redis.set('request_'+gid, data.to_json)
     qid
@@ -43,8 +45,11 @@ class GCRequest
     uid == getuid
   end
 
-  def allow
+  def allow msg
     # allow merge here
+    contacts.make_a_commit :author => { :name => , :email => , :time => }, 
+                           :committer => { :name => , :email => , :time => Time.now}, 
+                           :message => msg
   end
 
   def deny

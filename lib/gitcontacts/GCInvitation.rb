@@ -11,11 +11,11 @@ class GCInvitation
 
   def self::create hash
     code = nil
-    while GCInvitation::exist? code = GCUtil::generate_code 4 end
+    while GCInvitation::exist? code = GCUtil::generate_code(4) 
+    end
     data = {}
     GCUtil::invitation_keys.each do |key|
-      key_sym = key.to_sym
-      data[key_sym] = hash[key_sym]
+      data[key] = hash[key]
     end
     redis.set('invite_'+code, data.to_json)
   end
@@ -37,7 +37,7 @@ class GCInvitation
     @info[:contacts] if @info
   end
 
-  def can_accept? uid
+  def accept? uid
     uid == getuid
   end
 

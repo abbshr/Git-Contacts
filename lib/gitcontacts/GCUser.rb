@@ -26,13 +26,15 @@ class GCUser
   end
 
   def self::create email, hash
-    if !GCUser::exist? email
+    unless GCUser::exist? email
       data = {}
       GCUtil::user_keys.each do |key|
-        key_sym = key.to_sym
-        data[key_sym] = hash[key_sym]
+        #key_sym = key.to_sym
+        #data[key_sym] = hash[key_sym]
+        data[key] = hash[key]
       end
-      while GCUser::uid_exist? data[:uid] = GCUtil::generate_code 4 end
+      while GCUser::uid_exist? data[:uid] = GCUtil::generate_code(4) 
+      end
       redis.set('user_'+email, data.to_json) # remember to add mutex under multi-threading
       redis.set('uid_'+data[:uid], email)
     end
@@ -40,7 +42,7 @@ class GCUser
 
   def initialize email
     @email = email
-    @info = JSON.parse(redis.get('user_'+email), :symbolize_names => true) if GCUser::exist? email
+    @info = JSON.parse(redis.get('user_'+email), :symbolize_names => true) if GCUser::exist? @email
   end
 
   def getuid

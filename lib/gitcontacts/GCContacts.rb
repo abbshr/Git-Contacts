@@ -1,6 +1,7 @@
 require 'json'
 require 'redis'
 require 'gitcontacts/GCUtil'
+require "gitdb"
 
 class GCContacts
 
@@ -11,11 +12,11 @@ class GCContacts
 
   def self::create gid, hash
     gid = nil
-    while GCContacts::exist? gid = GCUtil::generate_code 4 end
+    while GCContacts::exist? gid = GCUtil::generate_code(4)
+    end
     data = {}
     GCUtil::contacts_keys.each do |key|
-      key_sym = key.to_sym
-      data[key_sym] = hash[key_sym]
+      data[key] = hash[key]
     end
     redis.set('contacts_'+gid, data.to_json)
   end
