@@ -54,7 +54,7 @@ module Gitdb
       if @repo.head_unborn?
         []
       else
-        @repo.head.target.tree.collect.each { |o| Card.new(@repo).access o[:name] }
+        @repo.head.target.tree.map { |o| Card.new(@repo).access o[:name] }
       end
     end
     
@@ -64,6 +64,17 @@ module Gitdb
         nil
       else
         Card.new(@repo).access id
+      end
+    end
+
+    # 条件查询
+    def get_cards_if &condition
+      if @repo.head_unborn?
+        []
+      else
+        @repo.head.target.tree.map { |o|
+          yield Card.new(@repo).access o[:name]
+        }.compact
       end
     end
 
