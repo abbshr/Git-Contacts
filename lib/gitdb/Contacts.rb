@@ -71,7 +71,9 @@ module Gitdb
       @meta = {
         :name => @repo.config['repo.name'],
         :owner => @repo.config['repo.owner'],
-        :gid => @repo.config['repo.gid']
+        :gid => @repo.config['repo.gid'],
+        # 动态获取contacts中card数量
+        :count => @repo.head_unborn? ? 0 : @repo.last_commit.tree.count
       }
     end
     
