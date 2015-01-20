@@ -3,7 +3,7 @@ module GitContacts
   class User
 
     def self::exist? email
-      return true if UserObject.find_by_name email
+      return true if UserObject::exist? email
     end
 
     def self::create hash
@@ -11,7 +11,7 @@ module GitContacts
     end
 
     def initialize email
-      @obj = UserObject.find_by_name email
+      @obj = UserObject::access email
     end
 
     def getuid
@@ -55,14 +55,76 @@ module GitContacts
 
   end
 
-  class UserObject < ActiveRecord::Base
+  # class UserObject < ActiveRecord::Base
+  #   include Redis::Objects
+
+  #   value :email
+  #   value :uid
+  #   value :password
+  #   set :contacts
+  #   set :requests
+
+  # end
+
+  class UserObject
     include Redis::Objects
 
-    value :email
     value :uid
     value :password
     set :contacts
     set :requests
+
+    def self::key_prefix
+      "user_object:"
+    end
+
+    def self::exist? id
+      true if redis.keys(key_prefix+id+'*').count > 0
+    end
+
+    def self::access id
+      if exist? id
+        obj = allocate
+        obj.set_id id
+        obj.set_uid Redis::Value.new(key_prefix+id+':uid')
+        obj.set_password Redis::Value.new(key_prefix+id+':password')
+        obj.set_contacts Redis::Set.new(key_prefix+id+':contacts')
+        obj.set_requests Redis::Set.new(key_prefix+id+':requests')
+        obj
+      end
+    end
+
+    def initialize
+      @id = Digest::SHA1.hexdigest(Time.now.to_s)
+    end
+
+    def id
+      @id
+    end
+
+    def email
+      @id
+    end
+
+    def set_id id
+      @id = id
+    end
+
+    def set_uid uid
+      @uid = uid
+    end
+
+    def set_password password
+      @password = password
+    end
+
+    def set_contacts contacts
+      @contacts = contacts
+    end
+
+    def set_requests requests
+      @requests = requests
+    end
 
   end
 

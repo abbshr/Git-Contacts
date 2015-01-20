@@ -3,7 +3,7 @@ module GitContacts
   class Contacts
 
     def self::exist? gid
-      return true if ContactsObject.find_by_name gid
+      return true if ContactsObject::exist? gid
     end
 
     def self::create gid, hash
@@ -11,7 +11,7 @@ module GitContacts
     end
 
     def initialize gid
-      @obj = ContactsObject.find_by_name gid
+      @obj = ContactsObject::access gid
     end
 
     def getgid
@@ -44,14 +44,72 @@ module GitContacts
     
   end
 
-  class ContactsObject < ActiveRecord::Base
+  class ContactsObject
     include Redis::Objects
 
     value :name
-    value :gid
     set :users
     set :admins
-    set :owner
+    set :requests
+    value :owner
+
+    def self::key_prefix
+      "contacts_object:"
+    end
+
+    def self::exist? id
+      true if redis.keys(key_prefix+id+'*').count > 0
+    end
+
+    def self::access id
+      if exist? id
+        obj = allocate
+        obj.set_id id
+        obj.set_name Redis::Value.new(key_prefix+id+':name')
+        obj.set_users Redis::Set.new(key_prefix+id+':users')
+        obj.set_admins Redis::Set.new(key_prefix+id+':admins')
+        obj.set_requests Redis::Set.new(key_prefix+id+':requests')
+        obj.set_owner Redis::Value.new(key_prefix+id+':owner')
+        obj
+      end
+    end
+
+
+    def initialize
+      @id = Digest::SHA1.hexdigest(Time.now.to_s)
+    end
+
+    def id
+      @id
+    end
+
+    def gid
+      @id
+    end
+
+    def set_id id
+      @id = id
+    end
+
+    def set_name name
+      @name = name
+    end
+
+    def set_users users
+      @users = users
+    end
+
+    def set_admins admins
+      @admins = admins
+    end
+
+    def set_requests requests
+      @requests = requests
+    end
+
+    def set_owner owner
+      @owner = owner
+    end
 
   end
 

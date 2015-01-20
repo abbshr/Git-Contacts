@@ -3,7 +3,7 @@ module GitContacts
   class Request
 
     def self::exist? request_id
-      return true if RequestObject.find_by_name request_id
+      return true if RequestObject.exist? request_id
     end
 
     def self::create hash
@@ -15,7 +15,7 @@ module GitContacts
     end
 
     def initiazlie request_id
-      @obj =  RequestObject.find_by_name request_id
+      @obj =  RequestObject::access request_id
     end
 
     def getuid
@@ -91,15 +91,73 @@ module GitContacts
 
   end
 
-  class RequestObject < ActiveRecord::Base
+
+  class RequestObject
     include Redis::Objects
 
-    value :request_id
     value :uid
     value :gid
     value :card_id
     value :action
     hash_key :content
+
+    def self::key_prefix
+      "request_object:"
+    end
+
+    def self::exist? id
+      true if redis.keys(key_prefix+id+'*').count > 0
+    end
+
+    def self::access id
+      if exist? id
+        obj = allocate
+        obj.set_id id
+        obj.set_uid Redis::Value.new(key_prefix+id+':uid')
+        obj.set_gid Redis::Value.new(key_prefix+id+':gid')
+        obj.set_card_id Redis::Value.new(key_prefix+id+':card_id')
+        obj.set_action Redis::Value.new(key_prefix+id+':action')
+        obj.set_content Redis::HashKey.new(key_prefix+id+':content')
+        obj
+      end
+    end
+
+
+    def initialize
+      @id = Digest::SHA1.hexdigest(Time.now.to_s)
+    end
+
+    def id
+      @id
+    end
+
+    def request_id
+      @id
+    end
+
+    def set_id id
+      @id = id
+    end
+
+    def set_uid uid
+      @uid = uid
+    end
+
+    def set_gid gid
+      @gid = gid
+    end
+
+    def set_card_id card_id
+      @card_id = card_id
+    end
+
+    def set_action action
+      @action = action
+    end
+
+    def set_content content
+      @content = content
+    end
 
   end
 
