@@ -1,17 +1,17 @@
 module GitContacts
 
   class Request
+    class << self
+      def exist? request_id
+        return true if RequestObject.find_by_name request_id
+      end
+      def create hash
 
-    def self::exist? request_id
-      return true if RequestObject.exist? request_id
-    end
+      end
 
-    def self::create hash
-
-    end
-
-    def self::delete request_id
-    
+      def delete request_id
+      
+      end
     end
 
     def initiazlie request_id

@@ -1,16 +1,16 @@
 module GitContacts
 
   class Invitation
+    class << self
+      def exist? invite_id
+        return true if InvitationObject.find_by_name invite_id
+      end
+      def create hash
 
-    def self::exist? invite_id
-      return true if InvitationObject::exist? invite_id
-    end
+      end
 
-    def self::create hash
-
-    end
-
-    def self::delete invite_id
+      def delete invite_id
+      end
     end
 
     def initialize invite_id

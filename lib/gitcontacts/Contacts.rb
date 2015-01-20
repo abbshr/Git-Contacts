@@ -7,7 +7,7 @@ module GitContacts
     end
 
     def self::create gid, hash
-
+      
     end
 
     def initialize gid
