@@ -49,15 +49,6 @@ module Gitdb
       end
     end
     
-    # 返回Card实例集合
-    def get_all_cards
-      if @repo.head_unborn?
-        []
-      else
-        @repo.head.target.tree.map { |o| Card.new(@repo).access o[:name] }
-      end
-    end
-    
     # 返回Card实例
     def get_card_by_id id
       if @repo.head_unborn?
@@ -68,14 +59,20 @@ module Gitdb
     end
 
     # 条件查询
-    def get_cards_if &condition
+    # 返回Card实例集合
+    def get_cards &condition
       if @repo.head_unborn?
         []
       else
-        @repo.head.target.tree.map { |o|
+        @repo.head.target.tree.map do |o|
           yield Card.new(@repo).access o[:name]
-        }.compact
+        end.compact
       end
+    end
+
+    # 返回Card实例集合
+    def get_all_cards
+      get_cards { |card| card }
     end
 
     def getmeta
