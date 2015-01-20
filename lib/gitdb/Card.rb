@@ -4,6 +4,8 @@ module Gitdb
 
     # 线程锁
     @@lock = Mutex.new
+    # 记录申请资源的repo, 用于判断是否需要锁
+    @@lock_repo = []
 
     def initialize repo
       @repo = repo
@@ -40,8 +42,7 @@ module Gitdb
     
     def create uid
 
-      # 同步信号量
-      @@lock.synchronize {
+      block = Proc.new {
         # 生成唯一的名片id
         while exist?(@id = Gitil::generate_code(4)) 
         end
@@ -52,6 +53,18 @@ module Gitdb
         # 添加到暂存区
         add_to_stage @id, JSON.pretty_generate(@content)
       }
+
+      # 如果repo中存在资源申请
+      if @@lock_repo.include? @repo.workdir
+        # 同步信号量
+        @@lock.synchronize &block
+      else
+      # 否则将新的repo加入记录
+        @@lock_repo << @repo.workdir
+        block.call
+      end
+      # 使用结束后清理记录
+      @@lock_repo.delete @repo.workdir
       
       # 返回Card实例
       self
