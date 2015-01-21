@@ -6,10 +6,10 @@ require 'gitcontacts/version'
 Gem::Specification.new do |spec|
   spec.name          = "gitcontacts"
   spec.version       = GitContacts::VERSION
-  spec.authors       = ["ran"]
-  spec.email         = ["abbshr@outlook.com"]
-  spec.summary       = %q{"balabala"}
-  spec.description   = %q{"balabala"}
+  spec.authors       = ["AustinChou"]
+  spec.email         = ["austinchou0126@gmail.com"]
+  spec.summary       = %q{"Git-Contacts service interface"}
+  spec.description   = %q{"a contacts service powered by Git. this is the second layer, for access control & users management"}
   spec.homepage      = "http://github.com"
   spec.license       = "MIT"
 
@@ -18,9 +18,9 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "redis", "~> 3.2.0"
-  spec.add_runtime_dependency "gitdb", "~> 0.1.3"
-  spec.add_runtime_dependency "redis-objects", "~> 1.0.1"
+  spec.add_dependency "redis", '~> 3.2'
+  spec.add_dependency "gitdb", '~> 0.1', ">= 0.1.3"
+  spec.add_dependency "redis-objects", "~> 1.0"
 
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"

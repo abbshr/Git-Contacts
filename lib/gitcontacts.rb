@@ -5,7 +5,7 @@ require 'gitcontacts/util'
 require 'gitcontacts/User'
 require 'gitcontacts/Request'
 require 'gitcontacts/Contacts'
-require 'gitcontacts/Inviation'
+require 'gitcontacts/Invitation'
 require "gitcontacts/version"
 require 'digest/sha1'
 require "gitdb"
@@ -165,7 +165,7 @@ module GitContacts
     def add_contacts_card operator, gid, payload
       return unless GitContacts::relation_valid? operator gid
       # request id
-      qid = Request::create :uid => operator, :gid => gid, :action => "create", :time => Time.now :content => payload
+      qid = Request::create :uid => operator, :gid => gid, :action => "create", :time => Time.now, :content => payload
       # create a rqeuest
       req = Request.new qid
       if req.auto_merge? operator
@@ -177,7 +177,7 @@ module GitContacts
 
     def edit_contacts_card operator, gid, card_id, payload
       return unless GitContacts::relation_valid? operator gid
-      qid = GCRequest::create :uid => operator, :gid => gid, :action => "setdata", :time => Time.now :card_id => card_id, :content => payload
+      qid = GCRequest::create :uid => operator, :gid => gid, :action => "setdata", :time => Time.now, :card_id => card_id, :content => payload
       req = GCRequest.new qid
       if req.auto_merge? operator
         req.allow operator
