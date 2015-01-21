@@ -54,8 +54,8 @@ module GitContacts
       GitContacts::get_all_contacts(uid).select &condition
     end
 
-    def add_contacts operator, gid, name
-      return unless GitContacts::relation_valid? operator gid
+    def add_contacts operator, name
+      #return unless GitContacts::relation_valid? operator gid
       contacts = Gitdb::Contacts.new operator
       contacts.create name
     end
@@ -151,7 +151,7 @@ module GitContacts
       end
     end
 
-    def revert_to operator
+    def revert_to operator, gid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
       operator = {
