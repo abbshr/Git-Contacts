@@ -92,13 +92,13 @@ module Gitdb
     end
 
     # 返回commit对象oid
-    def read_change_history
+    def read_change_history &block
       if @repo.head_unborn?
         []
       else
         walker = Rugged::Walker.new repo
         walker.push repo.last_commit
-        walker.collect.each { |commit| commit.oid }
+        walker.map(&block).compact 
       end
     end
 

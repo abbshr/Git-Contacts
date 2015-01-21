@@ -38,9 +38,10 @@ Or install it yourself as:
 + method: `access(contacts_id)`
 + method: `getmeta`
 + method: `setmeta(Hash)`
++ method: `get_cards { |card| }`
 + method: `get_all_cards`
 + method: `get_card_by_id(card_id)`
-+ method: `read_change_history`
++ method: `read_change_history { |commit| }`
 + method: `revert_to(sha, {})`
 + method: `make_a_commit({})`
 
