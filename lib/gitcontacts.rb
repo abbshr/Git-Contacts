@@ -185,9 +185,9 @@ module GitContacts
       end
     end
 
-    def delete_contacts_card operator, gid
+    def delete_contacts_card operator, gid, card_id
       return unless GitContacts::relation_valid? operator gid
-      qid = GCRequest::create :uid => operator, :gid => gid, :action => "delete", :time => Time.now
+      qid = GCRequest::create :uid => operator, :gid => gid, :action => "delete", :time => Time.now, :card_id => card_id
       req = GCRequest.new qid
       if req.auto_merge? operator
         req.allow operator
