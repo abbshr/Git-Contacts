@@ -1,5 +1,7 @@
 # Gitdb
 
+[![Gem Version](https://badge.fury.io/rb/gitdb.svg)](http://badge.fury.io/rb/gitdb)
+
 **Git-Contacts** backend data engine  
 a simple data storage based on git, designed for Git-Contacts
 
