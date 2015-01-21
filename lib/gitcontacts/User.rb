@@ -2,26 +2,34 @@ module GitContacts
 
   class User
 
-    def self::exist? email
-      true if UserObject::exist? email
+    def self::exist? uid
+      true if UserObject::exist?(uid)
+    end
+
+    def self::email_to_uid email
+      
     end
 
     def self::create hash
       # some keys are optional
-      if hash.keys.include? :name && hash.keys.include? :password
+      if hash.keys.include?(:email) && hash.keys.include?(:password)
         obj = UserObject.new
-        obj.name = hash[:name]
+        obj.email = hash[:email]
         obj.password = hash[:password]
         obj.uid
       end
     end
 
-    def initialize email
-      @obj = UserObject::access email
+    def initialize uid
+      @obj = UserObject::access uid
     end
 
     def getuid
       @obj.uid if @obj
+    end
+
+    def getname
+      @obj.name if @obj
     end
 
     def getemail
@@ -53,7 +61,7 @@ module GitContacts
     end
 
     def remove_contacts gid
-      @obj.contacts.delete(gid) if @obj
+      @obj.contacts.delete gid if @obj
     end
 
     def add_request request_id
@@ -61,7 +69,7 @@ module GitContacts
     end
 
     def remove_request request_id
-      @obj.requests.delete(request_id) if @obj
+      @obj.requests.delete request_id if @obj
     end
 
   end
@@ -79,15 +87,15 @@ module GitContacts
       "user_object:"
     end
 
-    def self::exist? id
-      true if redis.keys(key_prefix+id+':*').count > 0
+    def self::exist? uid
+      true if redis.keys(key_prefix+uid+':*').count > 0
     end
 
-    def self::access id
-      if exist? id
+    def self::access uid
+      if exist? uid
         obj = allocate
-        obj.set_id id
-        obj.set_uid Redis::Value.new(key_prefix+id+':uid')
+        obj.set_uid uid
+        obj.set_email Redis::Value.new(key_prefix+id+':email')
         obj.set_password Redis::Value.new(key_prefix+id+':password')
         obj.set_contacts Redis::Set.new(key_prefix+id+':contacts')
         obj.set_requests Redis::Set.new(key_prefix+id+':requests')
@@ -96,23 +104,19 @@ module GitContacts
     end
 
     def initialize
-      @id = Digest::SHA1.hexdigest(Time.now.to_s)
+      @uid = Digest::SHA1.hexdigest Time.now.to_s
     end
 
     def id
-      @id
-    end
-
-    def email
-      @id
-    end
-
-    def set_id id
-      @id = id
+      @uid
     end
 
     def set_uid uid
       @uid = uid
+    end
+
+    def set_email email
+      @email = email
     end
 
     def set_password password

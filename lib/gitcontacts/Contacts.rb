@@ -3,15 +3,15 @@ module GitContacts
   class Contacts
 
     def self::exist? gid
-      return true if ContactsObject::exist? gid
+      true if ContactsObject::exist?(gid)
     end
 
     def self::create gid, hash
       # some keys are optional
-      if hash.keys.include? :name
+      if hash.keys.include?(:name)
         obj = ContactsObject.new
         obj.name = hash[:name]
-        obj.note = hash[:note] if hash.has_key? :note
+        obj.note = hash[:note] if hash.has_key?(:note)
         obj.users << gid
         obj.admins << gid
         obj.gid
@@ -86,7 +86,7 @@ module GitContacts
 
 
     def initialize
-      @id = Digest::SHA1.hexdigest(Time.now.to_s)
+      @id = Digest::SHA1.hexdigest Time.now.to_s
     end
 
     def id

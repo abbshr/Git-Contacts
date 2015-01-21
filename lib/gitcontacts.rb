@@ -13,26 +13,26 @@ require "gitdb"
 module GitContacts
 
   class << self
-    def user_exist? email
-      User::exist? email
+    def user_exist? uid
+      User::exist? uid
     end
 
     def create_user hash
       User::create hash
     end
 
-    def password_valid email, password
-      if user = User.new email
+    def password_valid uid, password
+      if user = User.new(uid)
         user.password_correct? Digest::SHA1.hexdigest password
       end
     end
 
-    def relation_valid? operator gid
-      if User::exist? operator && Contacts::exist? gid
-        user = User.new()
+    def relation_valid? operator, gid
+      #if User::exist?(operator) && Contacts::exist?(gid)
+        user = User.new operator
         contacts = GitContacts.new gid
-        [user, contacts] if user.getcontacts.include? gid && contacts.getusers.include? operator
-      end
+        [user, contacts] #if user.getcontacts.include?(gid) && contacts.getusers.include?(operator)
+      #end
     end
 
     # meta => :owner, :gid, :count, :name
@@ -156,7 +156,7 @@ module GitContacts
       contacts.access gid
       operator = {
         :name => operator,
-        :email => ,
+        :email => User.new(operator).getemail,
         :time => Time.now
       }
       contacts.revert_to oid, { :author => operator, :committer => operator, :message => "revert to revision #{oid}" }

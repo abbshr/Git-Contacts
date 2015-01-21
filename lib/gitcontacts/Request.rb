@@ -4,7 +4,7 @@ module GitContacts
     class << self
 
       def exist? request_id
-        return true if RequestObject::exist? request_id
+        return true if RequestObject::exist?(request_id)
       end
 
       def create hash
@@ -61,7 +61,7 @@ module GitContacts
     def allow operator
       author = User.new getuid
       contacts = Gitdb::Contacts.new(uid).access getgid
-      card = Gitdb::Card.new(contacts.repo)
+      card = Gitdb::Card.new contacts.repo
       
       case getaction
       when 'create'

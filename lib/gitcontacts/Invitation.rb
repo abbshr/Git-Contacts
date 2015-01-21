@@ -3,7 +3,7 @@ module GitContacts
   class Invitation
     class << self
       def exist? invite_id
-        return true if InvitationObject::exist? invite_id
+        return true if InvitationObject::exist?(invite_id)
       end
 
       def create hash
