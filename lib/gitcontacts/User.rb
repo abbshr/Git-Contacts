@@ -3,7 +3,7 @@ module GitContacts
   class User
 
     def self::exist? email
-      return true if UserObject::exist? email
+      true if UserObject::exist? email
     end
 
     def self::create hash
