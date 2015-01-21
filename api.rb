@@ -130,7 +130,7 @@ class GCApp < Sinatra::Base
     if uid = "qwer"#check_token
       status = 200
       return_message[:success] = 1
-      return_message[:cards] = GitContacts::get_contacts_all_cards uid, params[:contacts_id]
+      return_message[:cards] = GitContacts::get_contacts_cards_by_related uid, params[:contacts_id], params[:keyword]
     else
       return_message[:errmsg] = "Token invalid."
     end
@@ -141,7 +141,7 @@ class GCApp < Sinatra::Base
     return_message = {}
     status = 401
     if uid = "qwer"#check_token
-      if return_message[:card] = GitContacts::get_contacts_card(uid params[:contacts_id], params[:card_id])
+      if return_message[:card] = GitContacts::get_contacts_card(uid, params[:contacts_id], params[:card_id])
         status = 200
         return_message[:success] = 1
       else
@@ -319,7 +319,8 @@ class GCApp < Sinatra::Base
   get '/contacts/:contacts_id/history' do
     return_message = {}
     status = 401
-    if return_message = GitContacts::get_contacts_modify_history(params[:contacts_id])
+    uid = 'qwer'
+    if return_message = GitContacts::get_contacts_history(uid, params[:contacts_id])
       status = 200
       return_message[:success] = 1
     end
@@ -329,7 +330,8 @@ class GCApp < Sinatra::Base
   post '/contacts/:contacts_id/history' do
     return_message = {}
     status = 401
-    if return_message = GitContacts::revert_to(@request_payload, :name => 'qwer', :email => 'qwer@google.com', :time => Time.now)
+    uid = 'qwer'
+    if return_message = GitContacts::revert_to(uid, params[:contacts_id], params[:oid])
       status = 200
       return_message[:success] = 1
     else
