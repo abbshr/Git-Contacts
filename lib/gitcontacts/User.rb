@@ -18,6 +18,10 @@ module GitContacts
       @obj.uid if @obj
     end
 
+    def getemail
+      @obj.email if @obj
+    end
+
     def getpassword
       @obj.password if @obj
     end
@@ -70,6 +74,7 @@ module GitContacts
     include Redis::Objects
 
     value :uid
+    value :email
     value :password
     set :contacts
     set :requests

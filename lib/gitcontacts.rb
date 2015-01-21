@@ -49,7 +49,7 @@ module GitContacts
       contacts_arr
     end
 
-    # e.g.: 获取联系人数量大于200的群组
+    # e.g.: 获取联系人数量大于200的uid群组
     # get_contacts_if { |contacts| contacts.count > 200 }
     def get_contacts_if &condition
       GitContacts::get_all_contacts(uid).select &condition
@@ -145,32 +145,53 @@ module GitContacts
         info if card.getmeta[:owner].include? keyword || info.find { |k| true if info[k].include? keyword }
       end
     end
-  
+    
+    def get_contacts_history
+      contacts = Gitdb::Contacts.new uid
+      contacts.access gid
+      contacts.read_modify_history.each do |commit|
+        author = commit.author
+        operator = commit.committer
+        modify_time = commit.
+        oid = commit.oid
+      end
+    end
+
+    def revert_to oid, operator_id
+      operator = {
+        :name => operator_id,
+        :email => ,
+        :time => Time.now
+      }
+      contacts = Gitdb::Contacts.new uid
+      contacts.access gid
+      contacts.revert_to oid, { :author => operator, :committer => operator, :message => "revert to revision #{oid}" }
+      get_contacts_all_cards
+    end
 
     def add_contacts_card operator gid payload
       unless GCService::relation_valid? operator gid
         return 'deny'
       end
-      qid = GCRequest::create :uid => operator, :gid => gid, :action => "add", :content => payload
-      req = GCRequest.new qid
-      if req.can_auto_merge operator
-        req.merge
-        GCRequest::delete qid
-      else 
+      # request id
+      qid = Request::create :uid => operator, :gid => gid, :action => "create", :time => Time.now :content => payload
+      # create a rqeuest
+      req = Request.new qid
+      if req.auto_merge? operator
+        req.allow operator
+        Request::delete qid
         # here should return card_id if success
-        draft_a_request
       end
     end
 
     def edit_contacts_card operator gid card_id payload
       if GCService::relation_valid? operator gid
-        qid = GCRequest::create :uid => operator, :gid => gid, :action => "edit", :card_id => card_id, :content => payload
+        qid = GCRequest::create :uid => operator, :gid => gid, :action => "setdata", :time => Time.now :card_id => card_id, :content => payload
         req = GCRequest.new qid
-        if req.can_auto_merge operator
-          req.merge
-          GCRequest::delete qid
-        else
-          draft_a_request
+        if req.auto_merge? operator
+          req.allow operator
+          Request::delete qid
+          # here should return card_id if success
         end
         true
       end
@@ -178,13 +199,11 @@ module GitContacts
 
     def delete_contacts_card operator
       if GCService::relation_valid? operator gid
-        qid = GCRequest::create :uid => operator, :gid => gid, :action => "delete"
+        qid = GCRequest::create :uid => operator, :gid => gid, :action => "delete", :time => Time.now
         req = GCRequest.new qid
-        if req.can_auto_merge operator
-          req.merge
-          GCRequest::delete qid
-        else
-          draft_a_request
+        if req.auto_merge? operator
+          req.allow operator
+          Request::delete qid
         end
         true
       end
