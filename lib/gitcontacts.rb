@@ -140,7 +140,7 @@ module GitContacts
     def get_contacts_history operator, gid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
-      contacts.read_change_history.each do |commit|
+      contacts.read_change_history do |commit|
         commit_obj = {}
         commit_obj[:author] = commit.author
         commit_obj[:operator] = commit.committer
