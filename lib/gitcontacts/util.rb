@@ -11,7 +11,7 @@ module GitContacts
     end
 
     def contacts_keys
-      [:name, :users, :admins]
+      [:name, :note, :users, :admins]
     end
 
     def invitation_keys

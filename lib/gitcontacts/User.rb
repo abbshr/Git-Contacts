@@ -7,7 +7,13 @@ module GitContacts
     end
 
     def self::create hash
-
+      # some keys are optional
+      if hash.keys.include? :name && hash.keys.include? :password
+        obj = UserObject.new
+        obj.name = hash[:name]
+        obj.password = hash[:password]
+        obj.uid
+      end
     end
 
     def initialize email
@@ -35,10 +41,11 @@ module GitContacts
     end
 
     def password_correct? sha
-      sha == getpassword
+      sha == getpassword && sha != nil && sha != ""
     end
 
-    def set_password 
+    def set_password sha
+      @obj.password = sha if sha != nil && sha != ""
     end
 
     def add_contacts gid
@@ -59,17 +66,6 @@ module GitContacts
 
   end
 
-  # class UserObject < ActiveRecord::Base
-  #   include Redis::Objects
-
-  #   value :email
-  #   value :uid
-  #   value :password
-  #   set :contacts
-  #   set :requests
-
-  # end
-
   class UserObject
     include Redis::Objects
 
@@ -84,7 +80,7 @@ module GitContacts
     end
 
     def self::exist? id
-      true if redis.keys(key_prefix+id+'*').count > 0
+      true if redis.keys(key_prefix+id+':*').count > 0
     end
 
     def self::access id

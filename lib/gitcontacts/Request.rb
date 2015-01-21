@@ -2,16 +2,28 @@ module GitContacts
 
   class Request
     class << self
-      def exist? request_id
-        return true if RequestObject.find_by_name request_id
-      end
-      def create hash
 
+      def exist? request_id
+        return true if RequestObject::exist? request_id
+      end
+
+      def create hash
+        # all keys are required
+        if hash.keys == GitContacts::request_keys
+          obj = RequestObject.new
+          obj.uid = hash[:uid]
+          obj.gid = hash[:gid]
+          obj.card_id = hash[:card_id]
+          obj.action = hash[:action]
+          obj.content = hash[:content]
+          obj.request_id
+        end
       end
 
       def delete request_id
-      
+        return true if RequestObject::delete(request_id) > 0
       end
+
     end
 
     def initiazlie request_id
@@ -92,7 +104,11 @@ module GitContacts
     end
 
     def self::exist? id
-      true if redis.keys(key_prefix+id+'*').count > 0
+      true if redis.keys(key_prefix+id+':*').count > 0
+    end
+
+    def self::delete id
+      redis.del(*(redis.keys(key_prefix+id+':*')))
     end
 
     def self::access id

@@ -3,13 +3,22 @@ module GitContacts
   class Invitation
     class << self
       def exist? invite_id
-        return true if InvitationObject.find_by_name invite_id
+        return true if InvitationObject::exist? invite_id
       end
-      def create hash
 
+      def create hash
+        # all keys are required
+        if hash.keys == GitContacts::invitation_keys
+          obj = InvitationObject.new
+          obj.uid = hash[:uid]
+          obj.gid = hash[:gid]
+          obj.inviter_id = hash[:inviter_id]
+          obj.invite_id
+        end
       end
 
       def delete invite_id
+        return true if InvitationObject::delete?(invite_id) > 0
       end
     end
 
@@ -34,20 +43,10 @@ module GitContacts
     end
 
     def accept
-       
+       # to-do
     end
 
   end
-
-  # class InvitationObject < ::Base
-  #   include Redis::Objects
-
-  #   value :invite_id
-  #   value :uid
-  #   value :gid
-  #   value :inviter_id
-
-  # end
 
   class InvitationObject
     include Redis::Objects
@@ -61,7 +60,7 @@ module GitContacts
     end
 
     def self::exist? id
-      true if redis.keys(key_prefix+id+'*').count > 0
+      true if redis.keys(key_prefix+id+':*').count > 0
     end
 
     def self::access id
@@ -75,6 +74,9 @@ module GitContacts
       end
     end
 
+    def self::delete id
+      redis.del(*(redis.keys(key_prefix+id+':*')))
+    end
 
     def initialize
       @id = Digest::SHA1.hexdigest(Time.now.to_s)

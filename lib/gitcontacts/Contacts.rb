@@ -7,7 +7,15 @@ module GitContacts
     end
 
     def self::create gid, hash
-      
+      # some keys are optional
+      if hash.keys.include? :name
+        obj = ContactsObject.new
+        obj.name = hash[:name]
+        obj.note = hash[:note] if hash.has_key? :note
+        obj.users << gid
+        obj.admins << gid
+        obj.gid
+      end
     end
 
     def initialize gid
@@ -48,6 +56,7 @@ module GitContacts
     include Redis::Objects
 
     value :name
+    value :note
     set :users
     set :admins
     set :requests
@@ -58,7 +67,7 @@ module GitContacts
     end
 
     def self::exist? id
-      true if redis.keys(key_prefix+id+'*').count > 0
+      true if redis.keys(key_prefix+id+':*').count > 0
     end
 
     def self::access id
@@ -66,6 +75,7 @@ module GitContacts
         obj = allocate
         obj.set_id id
         obj.set_name Redis::Value.new(key_prefix+id+':name')
+        obj.set_note Redis::Value.new(key_prefix+id+':note')
         obj.set_users Redis::Set.new(key_prefix+id+':users')
         obj.set_admins Redis::Set.new(key_prefix+id+':admins')
         obj.set_requests Redis::Set.new(key_prefix+id+':requests')
@@ -93,6 +103,10 @@ module GitContacts
 
     def set_name name
       @name = name
+    end
+
+    def set_note note
+      @note = note
     end
 
     def set_users users
