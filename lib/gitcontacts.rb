@@ -23,7 +23,7 @@ module GitContacts
 
     def password_valid? uid, password
       if user = User.new(uid)
-        user.password_correct? Digest::SHA1.hexdigest password
+        user if user.password_correct? Digest::SHA1.hexdigest password
       end
     end
 
