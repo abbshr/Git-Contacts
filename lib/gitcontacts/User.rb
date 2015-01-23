@@ -8,13 +8,11 @@ module GitContacts
 
     def self::create hash
       # some keys are optional
-      if hash.keys.include?(:email) && hash.keys.include?(:password) && !User::exist? hash[:email]
+      if hash.keys.include?(:email) && hash.keys.include?(:password) && !User::exist?(hash[:email])
         obj = UserObject.new
         obj.email = hash[:email]
         obj.password = hash[:password]
         obj.uid
-      else
-        nil
       end
     end
 
@@ -100,7 +98,7 @@ module GitContacts
     end
 
     def initialize
-      @uid = Digest::SHA1.hexdigest(Time.now.to_s + rand 10000)
+      @uid = Digest::SHA1.hexdigest(Time.now.to_s + rand(10000))
     end
 
     def id
