@@ -18,8 +18,8 @@ module GitContacts
       end
     end
 
-    def initialize uid
-      @obj = UserObject::access uid
+    def initialize email
+      @obj = UserObject::access email
     end
 
     def getuid
@@ -86,13 +86,13 @@ module GitContacts
     end
 
     def self::exist? email
-      true if redis.keys(key_prefix+email+':*').count > 0
+      true if redis.keys(email+':*').count > 0
     end
 
-    def self::access uid
+    def self::access email
       obj = allocate
-      obj.set_uid uid
-      obj.set_email Redis::Value.new(key_prefix+id+':email')
+      obj.set_email email
+      obj.set_uid Redis::Value.new(key_prefix+id+':uid')
       obj.set_password Redis::Value.new(key_prefix+id+':password')
       obj.set_contacts Redis::Set.new(key_prefix+id+':contacts')
       obj.set_requests Redis::Set.new(key_prefix+id+':requests')
