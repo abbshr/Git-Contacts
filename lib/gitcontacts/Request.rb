@@ -80,6 +80,7 @@ module GitContacts
       }
 
       contacts.make_a_commit commit_obj
+      card.getmeta[:id]
     end
 
     def deny
