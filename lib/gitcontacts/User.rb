@@ -86,7 +86,7 @@ module GitContacts
     end
 
     def self::exist? email
-      true if redis.keys(email+':*').count > 0
+      true if redis.keys(key_prefix+email+':*').count > 0
     end
 
     def self::access email
