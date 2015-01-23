@@ -173,6 +173,7 @@ module GitContacts
         Request::delete qid
         # here should return card_id if success
       end
+      true
     end
 
     def edit_contacts_card operator, gid, card_id, payload
@@ -183,6 +184,7 @@ module GitContacts
         req.allow operator
         Request::delete qid
       end
+      true
     end
 
     def delete_contacts_card operator, gid, card_id
@@ -193,6 +195,7 @@ module GitContacts
         req.allow operator
         Request::delete qid
       end
+      true
     end
 
     def get_contacts_users operator, gid
