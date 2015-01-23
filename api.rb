@@ -15,7 +15,7 @@ class App < Sinatra::Base
   # before each request
   before do
     # for dev test
-    session[:uid] = 'qwer'
+    #session[:uid] = 'qwer'
     content_type 'application/json'
     status 200
     @return_message = {}

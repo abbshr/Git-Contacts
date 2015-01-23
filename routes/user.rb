@@ -18,9 +18,10 @@ class App
   end
   
   post '/register' do 
+    body = JSON.parse request.body.read, { symbolize_names: true }
     unless session[:uid]
-      if GitContacts::create_user(params[:email], params[:password])
-        session[:uid] = params[:email]
+      if GitContacts::create_user(body)
+        session[:uid] = body[:email]
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Create user failed."
