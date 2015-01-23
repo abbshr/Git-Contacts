@@ -3,9 +3,7 @@ require 'sinatra/base'
 require "sinatra/cookies"
 require "sinatra/config_file"
 require "rack/session/moneta"
-require 'redis-sinatra'
 require 'json'
-#require 'redis'
 require 'gitcontacts'
 
 class App < Sinatra::Base
@@ -19,6 +17,8 @@ class App < Sinatra::Base
     # for dev test
     session[:uid] = 'qwer'
     content_type 'application/json'
+    status 200
+    @return_message = {}
   end
 
   class Hash
@@ -29,8 +29,8 @@ class App < Sinatra::Base
 
   # for dev test
   get '/' do
-    puts session[:uid]
-    {:name => 'Ran'}.to_json
+    @return_message[:name] = 'Aizen'
+    @return_message.to_json
   end
 
   # routes

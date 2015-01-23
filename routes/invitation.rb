@@ -1,34 +1,33 @@
 
 class App
   post '/contacts/:contacts_id/invitation' do
-    return_message = {}
-    status = 401
     if uid = session[:uid]
-      if return_message[:request_id] = GitContacts::invite_contacts_user(uid, params[:contacts_id], params[:payload])
-        status = 200
-        return_message[:success] = 1
+      if @return_message[:request_id] = GitContacts::invite_contacts_user(uid, params[:contacts_id], params[:payload])
+        @return_message[:success] = 1
+        status 201
       else
-        return_message[:errmsg] = "Create invitation failed."
+        @return_message[:errmsg] = "Create invitation failed."
+        status 500
       end
     else
-      return_message[:errmsg] = "Token invalid."
+      @return_message[:errmsg] = "Token invalid."
+      status 401
     end
-    return_message.to_json
+    @return_message.to_json
   end
 
   put '/invitation' do
-    return_message = {}
-    status = 401
     if uid = session[:uid]
       if GitContacts::edit_invitation_status(uid, params[:payload])
-        status = 200
-        return_message[:success] = 1
+        @return_message[:success] = 1
       else
-        return_message[:errmsg] = "Edit invitation failed."
+        @return_message[:errmsg] = "Edit invitation failed."
+        status 500
       end
     else
-      return_message[:errmsg] = "Token invalid."
+      @return_message[:errmsg] = "Token invalid."
+      status 401
     end
-    return_message.to_json
+    @return_message.to_json
   end
 end
