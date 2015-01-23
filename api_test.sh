@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Usage:
+# => regist a new user
+# url: /register
+# data(JSON): { "email": "abc@asd.com", "password": "12345" }
+# verb(UpperCase): POST
+#
 
 read -p "api URL:" url
 read -p "json data:" data
