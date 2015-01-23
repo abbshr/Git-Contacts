@@ -2,21 +2,19 @@ module GitContacts
 
   class User
 
-    def self::exist? uid
-      true if UserObject::exist?(uid)
-    end
-
-    def self::email_to_uid email
-      
+    def self::exist? email
+      true if UserObject::exist?(email)
     end
 
     def self::create hash
       # some keys are optional
-      if hash.keys.include?(:email) && hash.keys.include?(:password)
+      if hash.keys.include?(:email) && hash.keys.include?(:password) && !User::exist? hash[:email]
         obj = UserObject.new
         obj.email = hash[:email]
         obj.password = hash[:password]
         obj.uid
+      else
+        nil
       end
     end
 
@@ -87,28 +85,26 @@ module GitContacts
       "user_object:"
     end
 
-    def self::exist? uid
-      true if redis.keys(key_prefix+uid+':*').count > 0
+    def self::exist? email
+      true if redis.keys(key_prefix+email+':*').count > 0
     end
 
     def self::access uid
-      if exist? uid
-        obj = allocate
-        obj.set_uid uid
-        obj.set_email Redis::Value.new(key_prefix+id+':email')
-        obj.set_password Redis::Value.new(key_prefix+id+':password')
-        obj.set_contacts Redis::Set.new(key_prefix+id+':contacts')
-        obj.set_requests Redis::Set.new(key_prefix+id+':requests')
-        obj
-      end
+      obj = allocate
+      obj.set_uid uid
+      obj.set_email Redis::Value.new(key_prefix+id+':email')
+      obj.set_password Redis::Value.new(key_prefix+id+':password')
+      obj.set_contacts Redis::Set.new(key_prefix+id+':contacts')
+      obj.set_requests Redis::Set.new(key_prefix+id+':requests')
+      obj
     end
 
     def initialize
-      @uid = Digest::SHA1.hexdigest Time.now.to_s
+      @uid = Digest::SHA1.hexdigest(Time.now.to_s + rand 10000)
     end
 
     def id
-      @uid
+      @email
     end
 
     def set_uid uid
