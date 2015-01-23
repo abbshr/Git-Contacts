@@ -169,9 +169,9 @@ module GitContacts
       # create a rqeuest
       req = Request.new qid
       if req.auto_merge? operator
-        req.allow operator
         Request::delete qid
         # here should return card_id if success
+        return req.allow operator
       end
       true
     end
