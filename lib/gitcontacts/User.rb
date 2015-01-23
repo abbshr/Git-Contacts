@@ -98,7 +98,7 @@ module GitContacts
     end
 
     def initialize
-      @uid = Digest::SHA1.hexdigest(Time.now.to_s + rand(10000))
+      @uid = Digest::SHA1.hexdigest(Time.now.to_s + rand(10000).to_s)
     end
 
     def id
