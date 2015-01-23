@@ -21,8 +21,8 @@ module GitContacts
       User::create hash
     end
 
-    def password_valid? uid, password
-      if user = User.new(uid)
+    def password_valid? email, password
+      if user = User.new(email)
         user if user.password_correct? Digest::SHA1.hexdigest password
       end
     end
