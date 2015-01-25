@@ -39,7 +39,7 @@ module GitContacts
     def get_all_contacts operator
       contacts_arr = []
       user = User.new operator
-      contacts = Gitdb::Contacts.new uid
+      contacts = Gitdb::Contacts.new operator
       user.getcontacts.each do |gid|
         return unless GitContacts::relation_valid? operator gid
         contacts.access gid
@@ -50,7 +50,7 @@ module GitContacts
 
     # e.g.: 获取联系人数量大于200的uid群组
     # get_contacts_if { |contacts| contacts.count > 200 }
-    def get_contacts_if &condition
+    def get_contacts_if uid, &condition
       GitContacts::get_all_contacts(uid).select &condition
     end
 

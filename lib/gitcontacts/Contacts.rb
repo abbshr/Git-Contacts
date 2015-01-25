@@ -74,12 +74,12 @@ module GitContacts
       if exist? id
         obj = allocate
         obj.set_id id
-        obj.set_name Redis::Value.new(key_prefix+id+':name')
-        obj.set_note Redis::Value.new(key_prefix+id+':note')
-        obj.set_users Redis::Set.new(key_prefix+id+':users')
-        obj.set_admins Redis::Set.new(key_prefix+id+':admins')
-        obj.set_requests Redis::Set.new(key_prefix+id+':requests')
-        obj.set_owner Redis::Value.new(key_prefix+id+':owner')
+        obj.set_name Redis::Value.new(key_prefix+obj.id+':name')
+        obj.set_note Redis::Value.new(key_prefix+obj.id+':note')
+        obj.set_users Redis::Set.new(key_prefix+obj.id+':users')
+        obj.set_admins Redis::Set.new(key_prefix+obj.id+':admins')
+        obj.set_requests Redis::Set.new(key_prefix+obj.id+':requests')
+        obj.set_owner Redis::Value.new(key_prefix+obj.id+':owner')
         obj
       end
     end

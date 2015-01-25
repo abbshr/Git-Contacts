@@ -90,10 +90,10 @@ module GitContacts
     def self::access email
       obj = allocate
       obj.set_email email
-      obj.set_uid Redis::Value.new(key_prefix+id+':uid')
-      obj.set_password Redis::Value.new(key_prefix+id+':password')
-      obj.set_contacts Redis::Set.new(key_prefix+id+':contacts')
-      obj.set_requests Redis::Set.new(key_prefix+id+':requests')
+      obj.set_uid Redis::Value.new(key_prefix+obj.id+':uid')
+      obj.set_password Redis::Value.new(key_prefix+obj.id+':password')
+      obj.set_contacts Redis::Set.new(key_prefix+obj.id+':contacts')
+      obj.set_requests Redis::Set.new(key_prefix+obj.id+':requests')
       obj
     end
 

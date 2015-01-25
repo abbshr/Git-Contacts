@@ -67,9 +67,9 @@ module GitContacts
       if exist? id
         obj = allocate
         obj.set_id id
-        obj.set_uid Redis::Value.new(key_prefix+id+':uid')
-        obj.set_gid Redis::Value.new(key_prefix+id+':gid')
-        obj.set_inviter_id Redis::Value.new(key_prefix+id+':inviter_id')
+        obj.set_uid Redis::Value.new(key_prefix+obj.id+':uid')
+        obj.set_gid Redis::Value.new(key_prefix+obj.id+':gid')
+        obj.set_inviter_id Redis::Value.new(key_prefix+obj.id+':inviter_id')
         obj
       end
     end

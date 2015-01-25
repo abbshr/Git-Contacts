@@ -116,12 +116,12 @@ module GitContacts
       if exist? id
         obj = allocate
         obj.set_id id
-        obj.set_uid Redis::Value.new(key_prefix+id+':uid')
-        obj.set_gid Redis::Value.new(key_prefix+id+':gid')
-        obj.set_card_id Redis::Value.new(key_prefix+id+':card_id')
-        obj.set_action Redis::Value.new(key_prefix+id+':action')
-        obj.set_time Redis::Value.new "#{key_prefix}#{id}:time"
-        obj.set_content Redis::HashKey.new(key_prefix+id+':content')
+        obj.set_uid Redis::Value.new(key_prefix+obj.id+':uid')
+        obj.set_gid Redis::Value.new(key_prefix+obj.id+':gid')
+        obj.set_card_id Redis::Value.new(key_prefix+obj.id+':card_id')
+        obj.set_action Redis::Value.new(key_prefix+obj.id+':action')
+        obj.set_time Redis::Value.new "#{key_prefix}#{obj.id}:time"
+        obj.set_content Redis::HashKey.new(key_prefix+obj.id+':content')
         obj
       end
     end
