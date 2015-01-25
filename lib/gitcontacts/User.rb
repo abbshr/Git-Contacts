@@ -10,7 +10,7 @@ module GitContacts
       # some keys are optional
       if hash.keys.include?(:email) && hash.keys.include?(:password) && !User::exist?(hash[:email])
         obj = UserObject.new
-        obj.email = hash[:email]
+        obj.set_email hash[:email]
         obj.password = hash[:password]
         obj.uid
       end
