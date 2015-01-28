@@ -3,7 +3,7 @@ require 'rest-client'
 require 'json'
 
 @cookies = nil
-@response = nil
+@last_result = nil
 
 desc "Test Web Service RESTful APIs"
 task :test_all do
@@ -81,8 +81,9 @@ task :test_post_contacts => [:test_login] do
   data = {
     "contacts_name" => "TEST CONTACTS"
   }
-  code, result, @response = performPOST(request_uri, data.to_json, @cookies)
+  code, result = performPOST(request_uri, data.to_json, @cookies)
   if code == 200 && result[:success].to_s == '1'
+    @last_result = result
     puts result[:contacts_id]
     puts "post /contacts API test passed."
   else
@@ -93,11 +94,11 @@ end
 
 desc "Test GET /contacts/:contacts_id/cards API"
 task :test_get_contacts_cards => [:test_post_contacts] do
-  last_result = JSON.parse(@response.body, :symbolize_names => true)
-  request_uri = generateURL request_uri: "/contacts/#{last_result[:contacts_id]}/cards"
-  code, result, @response = performGET(request_uri, data.to_json)
+  request_uri = generateURL request_uri: "/contacts/#{@last_result[:contacts_id]}/cards"
+  code, result = performGET(request_uri, data.to_json, @cookies)
   if code == 200 && result[:success].to_s == '1'
     #puts result[:cards]
+    @last_result = @last_result.merge(result) # we may use this later
     puts "get /contacts/:contacts_id/cards API test passed."
   else
     puts result[:errmsg]
@@ -105,6 +106,58 @@ task :test_get_contacts_cards => [:test_post_contacts] do
   end
 end
 
+
+desc "Test GET /contacts/:contacts_id/card/:card_id API"
+task :test_get_contacts_card => [:test_get_contacts_cards] do
+  card_id = @last_result[:cards].shuffle.first
+  if card_id
+    request_uri = generateURL request_uri: "/contacts/#{@last_result[:contacts_id]}/card/#{card_id}}"
+  else
+    request_uri = generateURL request_uri: "/contacts/#{@last_result[:contacts_id]}/card/0}"
+  end
+  code, result = performGET(request_uri, data.to_json, @cookies)
+  if card_id && code == 200 && result[:success].to_s == 1
+    puts "get /contacts/:contacts_id/card/:card_id API passed."
+  elsif !card_id && code == 404
+    puts "get /contacts/:contacts_id/card/:card_id API passed."
+  else
+    puts "get /contacts/:contacts_id/card/:card_id API failed."
+  end
+end
+
+
+desc "Test POST /contacts/:contacts_id/card API"
+task :test_post_contacts_card => [:test_post_contacts] do
+  request_uri = generateURL request_uri: "/contacts/#{@last_result[:contacts_id]}/card"
+  data = {
+    # to-do
+  }
+  code, result = performPOST(request_uri, data.to_json, @cookies)
+  if code == 200 && result[:success].to_s == '1'
+    #puts result[:card_id]
+    @last_result = @last_result.merge(result)
+    @last_card = data
+    puts "post /contacts/:contacts_id/card API passed."
+  else
+    puts result[:errmsg]
+    puts "post /contacts/:contacts_id/card API failed."
+  end
+end
+
+desc "Test PUT /contacts/:contacts_id/card/:card_id API"
+task :test_put_contacts_card => [:test_post_contacts_card] do
+  request_uri = generateURL request_uri: "/contacts/#{@last_result[:contacts_id]}/card/#{@last_result[:card_id]}}"
+  data = {
+    # to-do
+  }
+  code, result = performPOST(request_uri, data.to_json, @cookies)
+  if code == 200 && result[:success].to_s == 1
+    @last_card = @last_card.merge(data)
+    puts "put /contacts/:contacts_id/card/:card_id API passed."
+  else
+    puts "put /contacts/:contacts_id/card/:card_id API failed."
+  end
+end
 
 
 # Helper Method
@@ -125,4 +178,8 @@ end
 def generateURL(options = {})
   options = { :base_url => 'http://localhost', :port => '8080', :request_uri => '/' }.merge(options)
   options[:base_url] + ':' + options[:port] + options[:request_uri]
+end
+
+def hashEqual?(a, b)
+  a.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo} == b.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
 end
