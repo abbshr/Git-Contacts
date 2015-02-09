@@ -41,6 +41,7 @@ module GitContacts
       user = User.new operator
       contacts = Gitdb::Contacts.new operator
       user.getcontacts.each do |gid|
+        puts gid
         return unless GitContacts::relation_valid? operator, gid
         contacts.access gid
         contacts_arr << contacts.getmeta
