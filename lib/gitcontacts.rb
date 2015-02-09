@@ -7,7 +7,7 @@ require 'gitcontacts/Request'
 require 'gitcontacts/Contacts'
 require 'gitcontacts/Invitation'
 require "gitcontacts/version"
-require 'digest/sha1'
+require 'digest'
 require "gitdb"
 
 module GitContacts
@@ -23,7 +23,7 @@ module GitContacts
 
     def password_valid? email, password
       if user = User.new(email)
-        user if user.password_correct? Digest::SHA1.hexdigest(password)
+        user if user.password_correct? Digest::MD5.hexdigest(password)
       end
     end
 
