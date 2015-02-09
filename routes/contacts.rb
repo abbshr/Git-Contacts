@@ -6,17 +6,17 @@ class App
     if uid = session[:uid]
       @return_message[:success] = 1
       @return_message[:contacts] = GitContacts::get_contacts_if uid do |contacts|
-        case @body[:filter]
+        case params[:filter]
         when 'eq'
-          cond = contacts[:count] == @body[:count].to_i
+          cond = contacts[:count] == params[:count].to_i
         when 'gt'
-          cond = contacts[:count] >= @body[:count].to_i
+          cond = contacts[:count] >= params[:count].to_i
         when 'lt'
-          cond = contacts[:count] <= @body[:count].to_i
+          cond = contacts[:count] <= params[:count].to_i
         else
           cond = true
         end
-        cond && contacts[:name].include?(@body[:name] || '')
+        cond && contacts[:name].include?(params[:name] || '')
       end
     else
       @return_message[:errmsg] = "Token invalid."
@@ -43,6 +43,7 @@ class App
 
   put '/contacts/:contacts_id/metadata' do
     if uid = session[:uid]
+      puts @body[:contacts_id], @body[:metadata]
       if GitContacts::edit_contacts_meta(uid, @body[:contacts_id], @body[:metadata])
         @return_message[:success] = 1
       else

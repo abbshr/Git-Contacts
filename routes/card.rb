@@ -19,7 +19,7 @@ class App
 
   get '/contacts/:contacts_id/card/:card_id' do
     if uid = session[:uid]
-      if @return_message[:card] = GitContacts::get_contacts_card(uid, params[:contacts_id], params[:card_id])
+      if @return_message[:card] = GitContacts::get_contacts_card(uid, @body[:contacts_id], @body[:card_id])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Card not found."
@@ -34,7 +34,7 @@ class App
 
   post '/contacts/:contacts_id/card' do
     if uid = session[:uid]
-      if @return_message[:card_id] = GitContacts::add_contacts_card(uid, params[:contacts_id], params[:payload])
+      if @return_message[:card_id] = GitContacts::add_contacts_card(uid, params[:contacts_id], @body[:payload])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Create card failed."
@@ -49,7 +49,7 @@ class App
 
   put '/contacts/:contacts_id/card/:card_id' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_card(uid, params[:contacts_id], params[:card_id], params[:payload])  
+      if GitContacts::edit_contacts_card(uid, @body[:contacts_id], @body[:card_id], @body[:payload])  
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Edit card failed."
@@ -64,7 +64,7 @@ class App
 
   delete '/contacts/:contacts_id/card/:card_id' do
     if uid = session[:uid]
-      if GitContacts::delete_contacts_card(uid, params[:contacts_id], params[:card_id])
+      if GitContacts::delete_contacts_card(uid, @body[:contacts_id], @body[:card_id])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Delete card failed"

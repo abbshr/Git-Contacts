@@ -1,3 +1,5 @@
+#$dep_dir = '/home/ran/github/gitcontacts/lib'
+#$LOAD_PATH << $dep_dir unless $LOAD_PATH.include? $dep_dir
 require 'sinatra'
 require 'sinatra/base'
 require "sinatra/cookies"
