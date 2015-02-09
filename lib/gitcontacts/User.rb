@@ -45,8 +45,8 @@ module GitContacts
     end
 
     def password_correct? sha
-      puts sha, getpassword
-      sha == getpassword && sha != nil && sha != ""
+      puts sha, getpassword.value
+      sha == getpassword.value && sha != nil && sha != ""
     end
 
     def set_password sha
@@ -92,7 +92,7 @@ module GitContacts
       obj = allocate
       obj.set_email email
       #obj.set_uid Redis::Value.new(key_prefix+obj.id+':uid')
-      obj.set_password Redis::Value.new(key_prefix+obj.id+':password').value
+      obj.set_password Redis::Value.new(key_prefix+obj.id+':password')
       obj.set_contacts Redis::Set.new(key_prefix+obj.id+':contacts')
       obj.set_requests Redis::Set.new(key_prefix+obj.id+':requests')
       obj
