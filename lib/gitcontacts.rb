@@ -59,7 +59,7 @@ module GitContacts
       git_contacts = Gitdb::Contacts.new operator 
       git_contacts.create name
       gid = git_contacts.getmeta[:gid]
-      Contacts.create gid, name
+      Contacts.create gid, { :name => name }
       contacts = Contacts.new gid
       contacts.add_user operator
       user = User.new operator
