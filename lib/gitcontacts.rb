@@ -28,11 +28,11 @@ module GitContacts
     end
 
     def relation_valid? operator, gid
-      #if User::exist?(operator) && Contacts::exist?(gid)
+      if User::exist?(operator) && Contacts::exist?(gid)
         user = User.new operator
         contacts = GitContacts.new gid
-        [user, contacts] #if user.getcontacts.include?(gid) && contacts.getusers.include?(operator)
-      #end
+        [user, contacts] if user.getcontacts.include?(gid) && contacts.getusers.include?(operator)
+      end
     end
 
     # meta => :owner, :gid, :count, :name
@@ -74,60 +74,7 @@ module GitContacts
       contacts.access gid
       contacts.get_card_by_id card_id
     end
-=begin
-    def get_contacts_cards_by_owner operator, owner
-      return unless GitContacts::relation_valid? operator gid
-      contacts = Gitdb::Contacts.new operator
-      contacts.access gid
-      contacts.get_cards do |card|
-        card.getdata if card.getmeta[:owner].include? owner
-      end
-    end
 
-    def get_contacts_cards_by_name operator, name 
-      return unless GitContacts::relation_valid? operator gid
-      contacts = Gitdb::Contacts.new operator
-      contacts.access gid
-      contacts.get_cards do |card|
-        card.getdata if card.getdata[:firstname].include? name || card.getdata[:firstname].include? name
-      end
-    end
-
-    def get_contacts_cards_by_number operator, number
-      return unless GitContacts::relation_valid? operator gid
-      contacts = Gitdb::Contacts.new operator
-      contacts.access gid
-      contacts.get_cards do |card|
-        info = card.getdata
-        cond = info[:mobile].include? number || info[:phone].include? number || info[:im].include? number
-        info if cond
-      end
-    end
-
-    def get_contacts_cards_by_birthday date
-      contacts = Gitdb::Contacts.new uid
-      contacts.access gid
-      contacts.get_cards do |card|
-        card.getdata if card.getdata[:birthday].include? date
-      end
-    end
-
-    def get_contacts_cards_by_email email
-      contacts = Gitdb::Contacts.new uid
-      contacts.access gid
-      contacts.get_cards do |card|
-        card.getdata if card.getdata[:email].include? email
-      end
-    end
-
-    def get_contacts_cards_by_etc info
-      contacts = Gitdb::Contacts.new uid
-      contacts.access gid
-      contacts.get_cards do |card|
-        card.getdata if card.getdata[:address].include? info || card.getdata[:note].include? info
-      end
-    end
-=end
     def get_contacts_cards_by_related operator, gid, keyword
       return unless GitContacts::relation_valid? operator gid
       contacts = Gitdb::Contacts.new operator
@@ -230,7 +177,7 @@ module GitContacts
         end
       end
     end
-
+=begin
     def invite_contacts_user operator, gid, payload
       return unless result = GitContacts::relation_valid?(operator, gid)
       user = result.first
@@ -252,7 +199,7 @@ module GitContacts
         true
       end
     end
-
+=end
     def get_all_requests operator
     end
 
