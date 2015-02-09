@@ -56,10 +56,15 @@ module GitContacts
 
     def add_contacts operator, name
       #return unless GitContacts::relation_valid? operator gid
-      puts operator, name
-      contacts = Gitdb::Contacts.new operator 
-      contacts.create name
-      contacts.getmeta[:gid]
+      git_contacts = Gitdb::Contacts.new operator 
+      git_contacts.create name
+      gid = git_contacts.getmeta[:gid]
+      Contacts.create gid, name
+      contacts = Contacts.new gid
+      contacts.add_user operator
+      user = User.new operator
+      user.add_contacts gid
+      gid
     end
 
     def edit_contacts_meta operator, gid, new_meta
