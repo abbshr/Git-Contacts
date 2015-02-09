@@ -3,7 +3,6 @@ class App
 
   post '/login' do
     unless session[:uid]
-      puts @body[:email], @body[:password]
       if user = GitContacts::password_valid?(@body[:email], @body[:password])
         # mark email as uid
         session[:uid] = @body[:email]
