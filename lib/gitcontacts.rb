@@ -41,12 +41,10 @@ module GitContacts
       user = User.new operator
       contacts = Gitdb::Contacts.new operator
       user.getcontacts.each do |gid|
-        puts gid
-        #break unless GitContacts::relation_valid? operator, gid
+        break unless GitContacts::relation_valid? operator, gid
         contacts.access gid
         contacts_arr << contacts.getmeta
       end
-      puts contacts_arr
       contacts_arr
     end
 
@@ -64,6 +62,7 @@ module GitContacts
       Contacts.create gid, { :name => name }
       contacts = Contacts.new gid
       contacts.add_user operator
+      contacts.add_admin operator
       user = User.new operator
       user.add_contacts gid
       gid
