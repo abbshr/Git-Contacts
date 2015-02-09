@@ -12,7 +12,6 @@ module GitContacts
         obj = UserObject.new
         obj.email = hash[:email]
         obj.password = Digest::MD5.hexdigest hash[:password]
-        #obj.uid
       end
     end
 
