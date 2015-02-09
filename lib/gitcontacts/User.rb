@@ -36,7 +36,7 @@ module GitContacts
     end
 
     def getcontacts
-      @obj.contacts.members if @obj
+      @obj.contacts if @obj
     end
 
     def getrequests
