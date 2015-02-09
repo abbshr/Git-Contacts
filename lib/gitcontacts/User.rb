@@ -11,8 +11,8 @@ module GitContacts
       if hash.keys.include?(:email) && hash.keys.include?(:password) && !User::exist?(hash[:email])
         obj = UserObject.new
         obj.set_email hash[:email]
-        obj.password = hash[:password]
-        obj.uid
+        obj.set_password = Digest::MD5.hexdigest hash[:password]
+        #obj.uid
       end
     end
 
@@ -20,9 +20,9 @@ module GitContacts
       @obj = UserObject::access email
     end
 
-    def getuid
-      @obj.uid if @obj
-    end
+    #def getuid
+    #  @obj.uid if @obj
+    #end
 
     def getname
       @obj.name if @obj
@@ -73,7 +73,7 @@ module GitContacts
   class UserObject
     include Redis::Objects
 
-    value :uid
+    #value :uid
     value :email
     value :password
     set :contacts
@@ -90,7 +90,7 @@ module GitContacts
     def self::access email
       obj = allocate
       obj.set_email email
-      obj.set_uid Redis::Value.new(key_prefix+obj.id+':uid')
+      #obj.set_uid Redis::Value.new(key_prefix+obj.id+':uid')
       obj.set_password Redis::Value.new(key_prefix+obj.id+':password')
       obj.set_contacts Redis::Set.new(key_prefix+obj.id+':contacts')
       obj.set_requests Redis::Set.new(key_prefix+obj.id+':requests')
@@ -98,16 +98,16 @@ module GitContacts
     end
 
     def initialize
-      @uid = Digest::SHA1.hexdigest(Time.now.to_s + rand(10000).to_s)
+      #@uid = Digest::SHA1.hexdigest(Time.now.to_s + rand(10000).to_s)
     end
 
     def id
       @email
     end
 
-    def set_uid uid
-      @uid = uid
-    end
+    #def set_uid uid
+    #  @uid = uid
+    #end
 
     def set_email email
       @email = email
