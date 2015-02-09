@@ -41,7 +41,7 @@ module GitContacts
       user = User.new operator
       contacts = Gitdb::Contacts.new operator
       user.getcontacts.each do |gid|
-        return unless GitContacts::relation_valid? operator gid
+        return unless GitContacts::relation_valid? operator, gid
         contacts.access gid
         contacts_arr << contacts.getmeta
       end
@@ -68,7 +68,7 @@ module GitContacts
     end
 
     def edit_contacts_meta operator, gid, new_meta
-      return unless GitContacts::relation_valid? operator gid
+      return unless GitContacts::relation_valid? operator, gid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
       contacts.setmeta new_meta
@@ -82,7 +82,7 @@ module GitContacts
     end
 
     def get_contacts_cards_by_related operator, gid, keyword
-      return unless GitContacts::relation_valid? operator gid
+      return unless GitContacts::relation_valid? operator, gid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
       contacts.get_cards do |card|
@@ -117,7 +117,7 @@ module GitContacts
     end
 
     def add_contacts_card operator, gid, payload
-      return unless GitContacts::relation_valid? operator gid
+      return unless GitContacts::relation_valid? operator, gid
       # request id
       qid = Request::create :uid => operator, :gid => gid, :action => "create", :time => Time.now, :content => payload
       # create a rqeuest
@@ -131,7 +131,7 @@ module GitContacts
     end
 
     def edit_contacts_card operator, gid, card_id, payload
-      return unless GitContacts::relation_valid? operator gid
+      return unless GitContacts::relation_valid? operator, gid
       qid = GCRequest::create :uid => operator, :gid => gid, :action => "setdata", :time => Time.now, :card_id => card_id, :content => payload
       req = GCRequest.new qid
       if req.auto_merge? operator
@@ -142,7 +142,7 @@ module GitContacts
     end
 
     def delete_contacts_card operator, gid, card_id
-      return unless GitContacts::relation_valid? operator gid
+      return unless GitContacts::relation_valid? operator, gid
       qid = GCRequest::create :uid => operator, :gid => gid, :action => "delete", :time => Time.now, :card_id => card_id
       req = GCRequest.new qid
       if req.auto_merge? operator
