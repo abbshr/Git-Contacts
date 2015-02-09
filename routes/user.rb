@@ -3,9 +3,10 @@ class App
 
   post '/login' do
     unless session[:uid]
-      if GitContacts::password_valid?(params[:email], params[:password]).getuid
+      puts @body[:email], @body[:password]
+      if user = GitContacts::password_valid?(@body[:email], @body[:password])
         # mark email as uid
-        session[:uid] = params[:email]
+        session[:uid] = @body[:email]
         @return_message[:success] = 1
       else
         status 401
@@ -19,10 +20,9 @@ class App
   end
   
   post '/register' do 
-    body = JSON.parse request.body.read, { symbolize_names: true }
     unless session[:uid]
-      if GitContacts::create_user(body)
-        session[:uid] = body[:email]
+      if GitContacts::create_user(@body)
+        session[:uid] = @body[:email]
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Create user failed."

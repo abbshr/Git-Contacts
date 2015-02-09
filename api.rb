@@ -16,6 +16,7 @@ class App < Sinatra::Base
   before do
     # for dev test
     #session[:uid] = 'qwer'
+    @body = JSON.parse request.body.read, { symbolize_names: true }
     content_type 'application/json'
     status 200
     @return_message = {}
