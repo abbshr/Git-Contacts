@@ -45,6 +45,7 @@ module GitContacts
         contacts.access gid
         contacts_arr << contacts.getmeta
       end
+      puts contacts_arr
       contacts_arr
     end
 
