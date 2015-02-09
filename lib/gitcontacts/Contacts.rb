@@ -74,7 +74,7 @@ module GitContacts
     def self::access id
       if exist? id
         obj = allocate
-        obj.set_id id
+        obj.set_gid id
         obj.set_name Redis::Value.new(key_prefix+obj.id+':name')
         obj.set_note Redis::Value.new(key_prefix+obj.id+':note')
         obj.set_users Redis::Set.new(key_prefix+obj.id+':users')
