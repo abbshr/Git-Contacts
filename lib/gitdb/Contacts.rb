@@ -29,7 +29,7 @@ module Gitdb
         # 创建并打开git仓库
         @repo = Rugged::Repository.init_at "#{STORAGE_PATH}/#{@gid}"
       }
-      
+      puts name, @gid, @uid
       # 设置元信息
       setmeta :name => name, :gid => @gid, :owner => @uid
       # 读取最后一次提交指向的tree的数据到暂存区
