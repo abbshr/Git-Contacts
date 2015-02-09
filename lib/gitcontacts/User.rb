@@ -45,6 +45,7 @@ module GitContacts
     end
 
     def password_correct? sha
+      puts sha, getpassword
       sha == getpassword && sha != nil && sha != ""
     end
 
