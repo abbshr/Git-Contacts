@@ -26,7 +26,7 @@ module GitContacts
 
     end
 
-    def initiazlie request_id
+    def initialize request_id
       @obj =  RequestObject::access request_id
     end
 
