@@ -6,17 +6,17 @@ class App
     if uid = session[:uid]
       @return_message[:success] = 1
       @return_message[:contacts] = GitContacts::get_contacts_if uid do |contacts|
-        case params[:filter]
+        case @body[:filter]
         when 'eq'
-          cond = contacts.count == params[:count]
+          cond = contacts.count == @body[:count]
         when 'gt'
-          cond = contacts.count >= params[:count]
+          cond = contacts.count >= @body[:count]
         when 'lt'
-          cond = contacts.count <= params[:count]
+          cond = contacts.count <= @body[:count]
         else
           cond = true
         end
-        cond && contacts.name.include?(params[:name] || '')
+        cond && contacts.name.include?(@body[:name] || '')
       end
     else
       @return_message[:errmsg] = "Token invalid."
@@ -27,7 +27,7 @@ class App
 
   post '/contacts' do
     if uid = session[:uid]
-      if @return_message[:contacts_id] = GitContacts::add_contacts(uid, params[:contacts_name])
+      if @return_message[:contacts_id] = GitContacts::add_contacts(uid, @body[:contacts_name])
         @return_message[:success] = 1
         status 201
       else
@@ -43,7 +43,7 @@ class App
 
   put '/contacts/:contacts_id/metadata' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_meta(uid, params[:contacts_id], params[:metadata])
+      if GitContacts::edit_contacts_meta(uid, @body[:contacts_id], @body[:metadata])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Edit contacts metadata failed."
@@ -58,7 +58,7 @@ class App
   
   get '/contacts/:contacts_id/history' do
     uid = session[:uid]
-    if @return_message[:history] = GitContacts::get_contacts_history(uid, params[:contacts_id])
+    if @return_message[:history] = GitContacts::get_contacts_history(uid, @body[:contacts_id])
       @return_message[:success] = 1
     end
     @return_message.to_json
@@ -66,7 +66,7 @@ class App
 
   post '/contacts/:contacts_id/history' do
     uid = session[:uid]
-    if @return_message = GitContacts::revert_to(uid, params[:contacts_id], params[:oid])
+    if @return_message = GitContacts::revert_to(uid, @body[:contacts_id], @body[:oid])
       @return_message[:success] = 1
       status 201
     else
