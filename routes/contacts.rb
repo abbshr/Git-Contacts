@@ -8,15 +8,15 @@ class App
       @return_message[:contacts] = GitContacts::get_contacts_if uid do |contacts|
         case @body[:filter]
         when 'eq'
-          cond = contacts.count == @body[:count]
+          cond = contacts[:count] == @body[:count].to_i
         when 'gt'
-          cond = contacts.count >= @body[:count]
+          cond = contacts[:count] >= @body[:count].to_i
         when 'lt'
-          cond = contacts.count <= @body[:count]
+          cond = contacts[:count] <= @body[:count].to_i
         else
           cond = true
         end
-        cond && contacts.name.include?(@body[:name] || '')
+        cond && contacts[:name].include?(@body[:name] || '')
       end
     else
       @return_message[:errmsg] = "Token invalid."
