@@ -23,14 +23,14 @@ module GitContacts
 
     def password_valid? email, password
       if user = User.new(email)
-        user if user.password_correct? Digest::MD5.hexdigest(password)
+        user if user.password_correct? Digest::SHA1.hexdigest(password)
       end
     end
 
     def relation_valid? operator, gid
       if User::exist?(operator) && Contacts::exist?(gid)
         user = User.new operator
-        contacts = GitContacts.new gid
+        contacts = Contacts.new gid
         [user, contacts] if user.getcontacts.include?(gid) && contacts.getusers.include?(operator)
       end
     end

@@ -11,7 +11,7 @@ module GitContacts
       if hash.keys.include?(:email) && hash.keys.include?(:password) && !User::exist?(hash[:email])
         obj = UserObject.new
         obj.set_email hash[:email]
-        obj.set_password Digest::MD5.hexdigest hash[:password]
+        obj.password = Digest::MD5.hexdigest(hash[:password])
       end
     end
 
@@ -23,16 +23,16 @@ module GitContacts
     #  @obj.uid if @obj
     #end
 
-    def getname
-      @obj.name if @obj
-    end
+    # def getname
+    #   @obj.name.value if @obj
+    # end
 
     def getemail
       @obj.email if @obj
     end
 
     def getpassword
-      @obj.password if @obj
+      @obj.password.value if @obj
     end
 
     def getcontacts
@@ -44,7 +44,6 @@ module GitContacts
     end
 
     def password_correct? sha
-      puts sha, getpassword
       sha == getpassword && sha != nil && sha != ""
     end
 
@@ -74,7 +73,7 @@ module GitContacts
     include Redis::Objects
 
     #value :uid
-    value :email
+    # value :email
     value :password
     set :contacts
     set :requests
