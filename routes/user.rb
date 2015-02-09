@@ -4,6 +4,7 @@ class App
   post '/login' do
     unless session[:uid]
       if GitContacts::password_valid?(params[:email], params[:password]).getuid
+        # mark email as uid
         session[:uid] = params[:email]
         @return_message[:success] = 1
       else
@@ -48,7 +49,7 @@ class App
   get '/contacts/:contacts_id/users' do
     if uid = session[:uid]
       @return_message[:success] = 1
-      @return_message[:users] = GitContacts::get_contacts_users uid ,params[:contacts_id]
+      @return_message[:users] = GitContacts::get_contacts_users uid, params[:contacts_id]
     else
       @return_message[:errmsg] = "Token invalid."
       status 401
