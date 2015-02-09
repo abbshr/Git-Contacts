@@ -70,9 +70,11 @@ module GitContacts
 
     def edit_contacts_meta operator, gid, new_meta
       return unless GitContacts::relation_valid? operator, gid
+      puts operator, gid, new_meta
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
       contacts.setmeta new_meta
+      true
     end
 
     def get_contacts_card operator, gid, card_id
@@ -121,6 +123,7 @@ module GitContacts
       return unless GitContacts::relation_valid? operator, gid
       # request id
       qid = Request::create :uid => operator, :gid => gid, :action => "create", :time => Time.now, :content => payload
+      puts qid
       # create a rqeuest
       req = Request.new qid
       if req.auto_merge? operator

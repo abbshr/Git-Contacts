@@ -19,7 +19,7 @@ module GitContacts
     end
 
     def request_keys
-      [:uid, :gid, :card_id, :action, :content]
+      [:uid, :gid, :action, :content]
     end
   end
 end

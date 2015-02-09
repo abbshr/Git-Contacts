@@ -13,7 +13,7 @@ module GitContacts
           obj = RequestObject.new
           obj.uid = hash[:uid]
           obj.gid = hash[:gid]
-          obj.card_id = hash[:card_id]
+          obj.card_id = hash[:card_id] if hash.member? :card_id
           obj.action = hash[:action]
           obj.content = hash[:content]
           obj.request_id
@@ -55,7 +55,7 @@ module GitContacts
     end
 
     def auto_merge? uid
-      false
+      true
     end
 
     def allow operator
@@ -129,6 +129,7 @@ module GitContacts
 
     def initialize
       @id = Digest::SHA1.hexdigest(Time.now.to_s)
+      puts @id
     end
 
     def id

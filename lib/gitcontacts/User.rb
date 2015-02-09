@@ -19,9 +19,9 @@ module GitContacts
       @obj = UserObject::access email
     end
 
-    #def getuid
-    #  @obj.uid if @obj
-    #end
+    def getuid
+      getemail
+    end
 
     # def getname
     #   @obj.name.value if @obj
