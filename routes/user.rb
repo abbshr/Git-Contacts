@@ -1,6 +1,7 @@
 
 class App
 
+  # code review: @abbshr
   post '/login' do
     unless session[:uid]
       if user = GitContacts::password_valid?(@body[:email], @body[:password])
@@ -18,6 +19,7 @@ class App
     @return_message.to_json
   end
   
+  # code review: @abbshr
   post '/register' do 
     unless session[:uid]
       if GitContacts::create_user(@body)
@@ -34,6 +36,7 @@ class App
     @return_message.to_json
   end
 
+  # code review: @abbshr
   get '/logout' do
     if session[:uid]
       @return_message[:success] = 1
@@ -45,6 +48,7 @@ class App
     @return_message.to_json
   end
 
+  # code review: @abbshr
   get '/contacts/:contacts_id/users' do
     if uid = session[:uid]
       @return_message[:success] = 1
@@ -56,6 +60,7 @@ class App
     @return_message.to_json
   end
 
+  # code review: @AustinChou
   delete '/contacts/:contacts_id/user/:user_id' do
     if uid = session[:uid]
       if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], params[:payload])
@@ -71,6 +76,7 @@ class App
     @return_message.to_json
   end
 
+  # code review: @AustinChou
   put '/contacts/:contacts_id/user/:user_id/privilege' do
     if uid = session[:uid]
       if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], params[:payload])

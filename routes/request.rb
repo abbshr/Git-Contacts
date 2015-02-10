@@ -1,10 +1,10 @@
 
 class App
   
-  get '/contacts/:contacts_id/requests' do
+  # code review: @AustinChou
+  get '/contacts/:contacts_d/requests' do
     if uid = session[:uid]
       @return_message[:success] = 1
-      # code review: @AustinChou
       @return_message[:requests] = GitContacts::get_all_requests params[:contacts_id]
     else
       @return_message[:token] = "Token invalid."
@@ -12,10 +12,10 @@ class App
     end
     @return_message.to_json
   end
-
+  
+  # code review: @AustinChou
   put '/contacts/:contacts_id/request/:request_id/status' do
     if uid = session[:uid]
-      # code review: @AustinChou
       if GitContacts::edit_request_status(uid, params[:contacts_id], params[:request_id], params[:payload])
         @return_message[:success] = 1
       else

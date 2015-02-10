@@ -1,10 +1,11 @@
 class App
-
+  
+  # code review: @abbshr
   # 获取cards
   # => /contacts/id/cards?keyword=ninja_2000
   get '/contacts/:contacts_id/cards' do
     if uid = session[:uid]
-      if @return_message[:cards] = GitContacts::get_contacts_cards_by_related(uid, params[:contacts_id], params[:keyword])
+      if @return_message[:cards] = GitContacts::get_contacts_cards_by_related(uid, params[:contacts_id], params[:keyword] || '')
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "contacts not found"
@@ -16,10 +17,11 @@ class App
     end
     @return_message.to_json
   end
-
+  
+  # code review: @abbshr
   get '/contacts/:contacts_id/card/:card_id' do
     if uid = session[:uid]
-      if @return_message[:card] = GitContacts::get_contacts_card(uid, @body[:contacts_id], @body[:card_id])
+      if @return_message[:card] = GitContacts::get_contacts_card(uid, params[:contacts_id], params[:card_id])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Card not found."
@@ -31,9 +33,11 @@ class App
     end
     @return_message.to_json
   end
-
+  
+  # code review: @abbshr
   post '/contacts/:contacts_id/card' do
     if uid = session[:uid]
+      puts uid, params[:contacts_id], @body[:payload]
       if @return_message[:card_id] = GitContacts::add_contacts_card(uid, params[:contacts_id], @body[:payload])
         @return_message[:success] = 1
       else
@@ -46,10 +50,11 @@ class App
     end
     @return_message.to_json
   end
-
+  
+    # code review: @abbshr
   put '/contacts/:contacts_id/card/:card_id' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_card(uid, @body[:contacts_id], @body[:card_id], @body[:payload])  
+      if GitContacts::edit_contacts_card(uid, params[:contacts_id], params[:card_id], @body[:payload])  
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Edit card failed."
@@ -61,10 +66,11 @@ class App
     end
     @return_message.to_json
   end
-
+  
+    # code review: @abbshr
   delete '/contacts/:contacts_id/card/:card_id' do
     if uid = session[:uid]
-      if GitContacts::delete_contacts_card(uid, @body[:contacts_id], @body[:card_id])
+      if GitContacts::delete_contacts_card(uid, params[:contacts_id], params[:card_id])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Delete card failed"

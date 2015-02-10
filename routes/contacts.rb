@@ -1,18 +1,19 @@
 
 class App
 
-  # => /contacts?count=20&name=family
+  # code review: @abbshr
+  # => /contacts?count=20&filter=gt&name=family
   get '/contacts' do
     if uid = session[:uid]
       @return_message[:success] = 1
       @return_message[:contacts] = GitContacts::get_contacts_if uid do |contacts|
         case params[:filter]
         when 'eq'
-          cond = contacts[:count] == params[:count].to_i
+          cond = contacts[:count] == (params[:count] || 0).to_i
         when 'gt'
-          cond = contacts[:count] >= params[:count].to_i
+          cond = contacts[:count] >= (params[:count] || 0).to_i
         when 'lt'
-          cond = contacts[:count] <= params[:count].to_i
+          cond = contacts[:count] <= (params[:count] || 0).to_i
         else
           cond = true
         end
@@ -25,6 +26,7 @@ class App
     @return_message.to_json
   end
 
+  # code review: @abbshr
   post '/contacts' do
     if uid = session[:uid]
       if @return_message[:contacts_id] = GitContacts::add_contacts(uid, @body[:contacts_name])
@@ -41,6 +43,7 @@ class App
     @return_message.to_json
   end
 
+  # code review: @abbshr
   put '/contacts/:contacts_id/metadata' do
     if uid = session[:uid]
       puts @body[:contacts_id], @body[:metadata]
@@ -57,17 +60,19 @@ class App
     @return_message.to_json
   end
   
+  # code review: @abbshr
   get '/contacts/:contacts_id/history' do
     uid = session[:uid]
-    if @return_message[:history] = GitContacts::get_contacts_history(uid, @body[:contacts_id])
+    if @return_message[:history] = GitContacts::get_contacts_history(uid, params[:contacts_id])
       @return_message[:success] = 1
     end
     @return_message.to_json
   end
 
-  post '/contacts/:contacts_id/history' do
+  # code review: @abbshr
+  post '/contacts/:contacts_id/revert' do
     uid = session[:uid]
-    if @return_message = GitContacts::revert_to(uid, @body[:contacts_id], @body[:oid])
+    if @return_message[:oid] = GitContacts::revert_to(uid, params[:contacts_id], @body[:oid])
       @return_message[:success] = 1
       status 201
     else
