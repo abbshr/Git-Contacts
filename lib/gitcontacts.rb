@@ -34,6 +34,12 @@ module GitContacts
         [user, contacts] if user.getcontacts.include?(gid) && contacts.getusers.include?(operator)
       end
     end
+
+    def get_a_user operator, uid
+      return unless User.exist?(operator)
+      User.new uid if User.exist? uid
+    end
+
     # code review: @abbshr
     # meta => :owner, :gid, :count, :name
     def get_all_contacts operator
@@ -162,6 +168,10 @@ module GitContacts
       contacts = result.last
       contacts.getusers
     end
+    def get_contacts_user operator, gid, uid
+      return unless GitContacts::relation_valid?(operator, gid)
+      User.new uid if User.exist? uid
+    end
     # code review: @abbshr
     def add_contacts_user operator, gid, uid
       return unless result = GitContacts::relation_valid?(operator, gid)
@@ -183,6 +193,9 @@ module GitContacts
           true
         when "users"
           contacts.remove_admin uid
+          true
+        when "nil"
+          contacts.remove_user uid
           true
         end
       end
@@ -220,6 +233,12 @@ module GitContacts
         end
       end
       requests
+    end
+
+    def get_a_request operator, qid
+      if user = User.new(operator)
+        Request.new qid if Request.exist? qid
+      end
     end
 
     # code review: @AustinChou
