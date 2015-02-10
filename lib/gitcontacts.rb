@@ -16,17 +16,17 @@ module GitContacts
     def user_exist? uid
       User::exist? uid
     end
-
+    
     def create_user hash
       User::create hash
     end
-
+    # code review: @abbshr
     def password_valid? email, password
       if user = User.new(email)
         user if user.password_correct? Digest::MD5.hexdigest(password)
       end
     end
-
+    # code review: @AustinChou
     def relation_valid? operator, gid
       if User::exist?(operator) && Contacts::exist?(gid)
         user = User.new operator
@@ -34,7 +34,7 @@ module GitContacts
         [user, contacts] if user.getcontacts.include?(gid) && contacts.getusers.include?(operator)
       end
     end
-
+    # code review: @abbshr
     # meta => :owner, :gid, :count, :name
     def get_all_contacts operator
       contacts_arr = []
@@ -47,13 +47,13 @@ module GitContacts
       end
       contacts_arr
     end
-
+    # code review: @abbshr
     # e.g.: 获取联系人数量大于200的uid群组
     # get_contacts_if { |contacts| contacts.count > 200 }
     def get_contacts_if uid, &condition
       GitContacts::get_all_contacts(uid).select &condition
     end
-
+    # code review: @abbshr
     def add_contacts operator, name
       #return unless GitContacts::relation_valid? operator gid
       git_contacts = Gitdb::Contacts.new operator 
@@ -67,7 +67,7 @@ module GitContacts
       user.add_contacts gid
       gid
     end
-
+    # code review: @abbshr
     def edit_contacts_meta operator, gid, new_meta
       return unless GitContacts::relation_valid? operator, gid
       puts operator, gid, new_meta
@@ -76,24 +76,24 @@ module GitContacts
       contacts.setmeta new_meta
       true
     end
-
+    # code review: @abbshr
     def get_contacts_card operator, gid, card_id
-      return unless GitContacts::relation_valid? operator gid
+      return unless GitContacts::relation_valid? operator, gid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
-      contacts.get_card_by_id card_id
+      contacts.get_card_by_id(card_id).getdata
     end
-
+    # code review: @abbshr
     def get_contacts_cards_by_related operator, gid, keyword
       return unless GitContacts::relation_valid? operator, gid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
       contacts.get_cards do |card|
         info = card.getdata
-        info if card.getmeta[:owner].include? keyword || info.find { |k| true if info[k].include? keyword }
+        info if (card.getmeta[:owner].include? keyword) || info.find { |k,v| true if v.include? keyword }
       end
     end
-    
+    # code review: @abbshr
     def get_contacts_history operator, gid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
@@ -107,8 +107,9 @@ module GitContacts
         commit_obj
       end
     end
-
-    def revert_to operator, gid
+    # code review: @abbshr
+    def revert_to operator, gid, oid
+      puts operator, gid, oid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
       operator = {
@@ -118,50 +119,50 @@ module GitContacts
       }
       contacts.revert_to oid, { :author => operator, :committer => operator, :message => "revert to revision #{oid}" }
     end
-
+    # code review: @abbshr
     def add_contacts_card operator, gid, payload
       return unless GitContacts::relation_valid? operator, gid
       # request id
-      qid = Request::create :uid => operator, :gid => gid, :action => "create", :time => Time.now, :content => payload
-      puts qid
+      qid = Request::create :uid => operator, :gid => gid, :action => "create"
       # create a rqeuest
       req = Request.new qid
       if req.auto_merge? operator
-        Request::delete qid
         # here should return card_id if success
-        return req.allow operator
+        cid = req.allow operator
+        Request::delete qid
+        return cid
       end
       true
     end
-
+    # code review: @abbshr
     def edit_contacts_card operator, gid, card_id, payload
       return unless GitContacts::relation_valid? operator, gid
-      qid = GCRequest::create :uid => operator, :gid => gid, :action => "setdata", :time => Time.now, :card_id => card_id, :content => payload
-      req = GCRequest.new qid
+      qid = Request::create :uid => operator, :gid => gid, :action => "setdata", :card_id => card_id, :content => JSON.generate(payload)
+      req = Request.new qid
       if req.auto_merge? operator
         req.allow operator
         Request::delete qid
       end
       true
     end
-
+    # code review: @abbshr
     def delete_contacts_card operator, gid, card_id
       return unless GitContacts::relation_valid? operator, gid
-      qid = GCRequest::create :uid => operator, :gid => gid, :action => "delete", :time => Time.now, :card_id => card_id
-      req = GCRequest.new qid
+      qid = Request::create :uid => operator, :gid => gid, :action => "delete", :card_id => card_id
+      req = Request.new qid
       if req.auto_merge? operator
         req.allow operator
         Request::delete qid
       end
       true
     end
-
+    # code review: @abbshr
     def get_contacts_users operator, gid
       return unless result = GitContacts::relation_valid?(operator, gid)
       contacts = result.last
       contacts.getusers
     end
-
+    # code review: @abbshr
     def add_contacts_user operator, gid, uid
       return unless result = GitContacts::relation_valid?(operator, gid)
       user = result.first
@@ -172,6 +173,7 @@ module GitContacts
       end
     end
     
+    # code review: @AustinChou
     def edit_contacts_user_privileges operator, gid, uid, payload
       return unless result = GitContacts::relation_valid?(operator, gid)
       user = result.first
@@ -210,9 +212,12 @@ module GitContacts
       end
     end
 =end
+    
+    # code review: @AustinChou
     def get_all_requests operator
     end
 
+    # code review: @AustinChou
     def edit_request_status operator
     end
   end

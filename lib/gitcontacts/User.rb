@@ -16,6 +16,7 @@ module GitContacts
     end
 
     def initialize email
+      @email = email
       @obj = UserObject::access email
     end
 
@@ -28,7 +29,8 @@ module GitContacts
     # end
 
     def getemail
-      @obj.email if @obj
+      #@obj.email if @obj
+      @email
     end
 
     def getpassword

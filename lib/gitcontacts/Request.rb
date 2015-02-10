@@ -9,15 +9,14 @@ module GitContacts
 
       def create hash
         # all keys are required
-        if hash.keys == GitContacts::request_keys
-          obj = RequestObject.new
-          obj.uid = hash[:uid]
-          obj.gid = hash[:gid]
-          obj.card_id = hash[:card_id] if hash.member? :card_id
-          obj.action = hash[:action]
-          obj.content = hash[:content]
-          obj.request_id
-        end
+        obj = RequestObject.new
+        obj.uid = hash[:uid]
+        obj.gid = hash[:gid]
+        obj.time = Time.now.to_i
+        obj.card_id = hash[:card_id] if hash.member? :card_id
+        obj.action = hash[:action]
+        obj.content = hash[:content] if hash.member? :content
+        obj.request_id
       end
 
       def delete request_id
@@ -31,51 +30,53 @@ module GitContacts
     end
 
     def getuid
-      @obj.uid if @obj
+      @obj.uid.value if @obj
     end
 
     def getgid
-      @obj.gid if @obj
+      @obj.gid.value if @obj
     end
 
     def getaction
-      @obj.action if @obj
+      @obj.action.value if @obj
     end
 
     def getcard_id
-      @obj.card_id if @obj
+      @obj.card_id.value if @obj
     end
 
     def get_req_time
-      @obj.time if @obj
+      @obj.time.value if @obj
     end
 
     def getcontent
-      @obj.content if @obj
+      @obj.content.value if @obj
     end
 
+    # code review: @AustinChou
     def auto_merge? uid
       true
     end
 
     def allow operator
       author = User.new getuid
-      contacts = Gitdb::Contacts.new(uid).access getgid
+      operator = User.new operator
+      contacts = Gitdb::Contacts.new(getuid).access getgid
       card = Gitdb::Card.new contacts.repo
       
       case getaction
       when 'create'
-        card.create uid 
+        card.create getuid 
       when 'setmeta'
-        card.access(getcard_id).setmeta getcontent
+        card.access(getcard_id).setmeta JSON.parse(getcontent, { symbolize_names: true })
       when 'setdata'
-        card.access(getcard_id).setdata getcontent
+        card.access(getcard_id).setdata JSON.parse(getcontent, { symbolize_names: true })
       when 'delete'
         card.access(getcard_id).delete
       end
       
       commit_obj = {
-        :author => { :name => author.getuid, :email => author.getemail, :time => get_req_time },
+        :author => { :name => author.getuid, :email => author.getemail, :time => Time.at(get_req_time.to_i) },
         :committer => { :name => operator.getuid, :email => operator.getemail, :time => Time.now }
       }
 
@@ -98,7 +99,7 @@ module GitContacts
     value :time
     value :card_id
     value :action
-    hash_key :content
+    value :content
 
     def self::key_prefix
       "request_object:"
@@ -121,7 +122,7 @@ module GitContacts
         obj.set_card_id Redis::Value.new(key_prefix+obj.id+':card_id')
         obj.set_action Redis::Value.new(key_prefix+obj.id+':action')
         obj.set_time Redis::Value.new "#{key_prefix}#{obj.id}:time"
-        obj.set_content Redis::HashKey.new(key_prefix+obj.id+':content')
+        obj.set_content Redis::Value.new(key_prefix+obj.id+':content')
         obj
       end
     end
@@ -129,7 +130,6 @@ module GitContacts
 
     def initialize
       @id = Digest::SHA1.hexdigest(Time.now.to_s)
-      puts @id
     end
 
     def id
