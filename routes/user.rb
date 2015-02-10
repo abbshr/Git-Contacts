@@ -48,6 +48,16 @@ class App
     @return_message.to_json
   end
 
+  get '/user/:user_id' do
+    if uid = session[:uid]
+      @return_message[:user] = GitContacts::get_a_user uid, params[:user_id]
+      @return_message[:success] = 1
+    else
+      @return_message[:errmsg] = "Token invalid"
+      status 401
+    end
+  end
+
   # code review: @abbshr
   get '/contacts/:contacts_id/users' do
     if uid = session[:uid]
@@ -59,11 +69,26 @@ class App
     end
     @return_message.to_json
   end
-
+=begin
+  get '/contacts/:contacts_id/user/:user_id' do
+    if uid = session[:uid]
+      if @return_message[:user] = GitContacts::get_contacts_user(uid, params[:contacts_id], params[:user_id])
+        @return_message[:success] = 1
+      else
+        status 404
+        @return_message[:errmsg] = "User not found"
+      end
+    else
+      status 401
+      @return_message[:errmsg] = "Token invaild"
+    end
+    @return_message.to_json
+  end
+=end
   # code review: @AustinChou
   delete '/contacts/:contacts_id/user/:user_id' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], params[:payload])
+      if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], { role: "nil" })
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Delete user from contacts failed."
@@ -79,7 +104,7 @@ class App
   # code review: @AustinChou
   put '/contacts/:contacts_id/user/:user_id/privilege' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], params[:payload])
+      if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], @body[:payload])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Change user privilege failed."
