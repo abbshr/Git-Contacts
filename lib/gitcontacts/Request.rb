@@ -55,7 +55,16 @@ module GitContacts
 
     # code review: @AustinChou
     def auto_merge? uid
-      true
+      if contacts = Contacts.new(getgid)
+        if contacts.getadmins.include? uid
+          return true
+        else
+          case getaction
+          when "setdata" ,"delete"
+            return true if Gitdb::Card.new(getgid).access(getcard_id).getmeta[:owner] == getuid # to-do
+          end
+        end
+      end
     end
 
     def allow operator

@@ -175,10 +175,8 @@ module GitContacts
     
     # code review: @AustinChou
     def edit_contacts_user_privileges operator, gid, uid, payload
-      return unless result = GitContacts::relation_valid?(operator, gid)
-      user = result.first
-      contacts = result.last
-      if contacts.getadmins.include?(user.getuid)
+      return unless user, contacts = GitContacts::relation_valid?(operator, gid)
+      if contacts.getadmins.include?(user.getuid) && contacts.getusers.include? uid
         case payload[:role]
         when "admin"
           contacts.add_admin uid
@@ -215,10 +213,31 @@ module GitContacts
     
     # code review: @AustinChou
     def get_all_requests operator
+      requests = []
+      if user = User.new(operator)
+        user.getrequests.each do |qid|
+          requests << Request.new qid
+        end
+      end
+      requests
     end
 
     # code review: @AustinChou
-    def edit_request_status operator
+    def edit_request_status operator, qid, payload
+      if req = Request.new(qid)
+        if user, contacts = GitContacts::relation_valid?(operator, req.getgid)
+          if contacts.getadmins.include?(user.getuid)
+            case payload[:action]
+            when "permit"
+              req.allow operator
+              Request::delete qid
+            when "reject"
+              Request::delete qid
+            end
+          end
+        end
+      end
     end
+
   end
 end
