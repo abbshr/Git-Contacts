@@ -58,7 +58,7 @@ class App
   end
 
   # code review: @abbshr
-  put '/contacts/:contacts_id/metadata' do
+  patch '/contacts/:contacts_id/metadata' do
     if uid = session[:uid]
       if GitContacts::edit_contacts_meta(uid, params[:contacts_id], @body[:metadata])
         @return_message[:success] = 1

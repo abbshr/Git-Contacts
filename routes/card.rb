@@ -52,7 +52,7 @@ class App
   end
   
     # code review: @abbshr
-  put '/contacts/:contacts_id/card/:card_id' do
+  patch '/contacts/:contacts_id/card/:card_id' do
     if uid = session[:uid]
       if GitContacts::edit_contacts_card(uid, params[:contacts_id], params[:card_id], @body[:payload])  
         @return_message[:success] = 1

@@ -71,6 +71,21 @@ class App
     @return_message.to_json
   end
 
+   get '/contacts/:contacts_id/user/:user_id' do
+    if uid = session[:uid]
+      if @return_message[:user] = GitContacts::get_contacts_user_privileges(uid, params[:contacts_id], params[:user_id])
+        @return_message[:success] = 1
+      else
+        status 404
+        @return_message[:errmsg] = "User not found"
+      end
+    else
+      status 401
+      @return_message[:errmsg] = "Token invaild"
+    end
+    @return_message.to_json
+  end
+
   # code review: @AustinChou
   delete '/contacts/:contacts_id/user/:user_id' do
     if uid = session[:uid]
@@ -88,7 +103,7 @@ class App
   end
 
   # code review: @AustinChou
-  put '/contacts/:contacts_id/user/:user_id/privilege' do
+  patch '/contacts/:contacts_id/user/:user_id/privilege' do
     if uid = session[:uid]
       if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], @body[:role])
         @return_message[:success] = 1
