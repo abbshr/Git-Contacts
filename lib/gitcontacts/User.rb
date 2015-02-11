@@ -15,6 +15,10 @@ module GitContacts
       end
     end
 
+    def self::all
+      UserObject::all
+    end
+
     def initialize email
       @email = email
       @obj = UserObject::access email
@@ -86,6 +90,11 @@ module GitContacts
 
     def self::exist? email
       true if redis.keys(key_prefix+email+':*').count > 0
+    end
+
+    def self::all
+      keys = redis.keys %(#{key_prefix}*:password)
+      keys.map { |key| key.split(":")[1] }
     end
 
     def self::access email

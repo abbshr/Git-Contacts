@@ -49,6 +49,10 @@ module GitContacts
       end
     end
 
+    def get_users operator
+      User::all
+    end
+
     # code review: @abbshr
     # meta => :owner, :gid, :count, :name
     def get_all_contacts operator
