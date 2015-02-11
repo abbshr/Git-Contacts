@@ -1,5 +1,6 @@
-$dep_dir = '/home/ran/github/gitcontacts/lib'
-$LOAD_PATH << $dep_dir unless $LOAD_PATH.include? $dep_dir
+$dbg_dir = File.expand_path '../gitcontacts/lib', ''
+$LOAD_PATH << $dbg_dir unless !Dir.exist?($dbg_dir) || $LOAD_PATH.include?($dbg_dir)
+
 require 'sinatra'
 require 'sinatra/base'
 require "sinatra/cookies"
@@ -16,8 +17,7 @@ class App < Sinatra::Base
 
   # before each request
   before do
-    # for dev test
-    #session[:uid] = 'qwer'
+    # TODO: a pretty way to get request json
     @body = JSON.parse request.body.read, { symbolize_names: true }
     content_type 'application/json'
     status 200
@@ -30,12 +30,6 @@ class App < Sinatra::Base
     end
   end
 
-  # for dev test
-  get '/' do
-    @return_message[:name] = 'Aizen'
-    @return_message.to_json
-  end
-
   # routes
   require_relative 'routes/contacts'
   require_relative 'routes/card'
@@ -43,7 +37,8 @@ class App < Sinatra::Base
   require_relative 'routes/request'
   require_relative 'routes/invitation'
 
+  # defalut 404
   not_found do
-    { :errmsg => "NOT FOUND! may be this api hasn't been public now." }.to_json
+    { :errmsg => "API NOT FOUND! may be it hasn't been public now." }.to_json
   end
 end

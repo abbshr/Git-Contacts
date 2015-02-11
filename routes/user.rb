@@ -70,22 +70,7 @@ class App
     end
     @return_message.to_json
   end
-=begin
-  get '/contacts/:contacts_id/user/:user_id' do
-    if uid = session[:uid]
-      if @return_message[:user] = GitContacts::get_contacts_user(uid, params[:contacts_id], params[:user_id])
-        @return_message[:success] = 1
-      else
-        status 404
-        @return_message[:errmsg] = "User not found"
-      end
-    else
-      status 401
-      @return_message[:errmsg] = "Token invaild"
-    end
-    @return_message.to_json
-  end
-=end
+
   # code review: @AustinChou
   delete '/contacts/:contacts_id/user/:user_id' do
     if uid = session[:uid]
