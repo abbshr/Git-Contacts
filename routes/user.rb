@@ -56,6 +56,7 @@ class App
       @return_message[:errmsg] = "Token invalid"
       status 401
     end
+    @return_message.to_json
   end
 
   # code review: @abbshr
@@ -88,11 +89,11 @@ class App
   # code review: @AustinChou
   delete '/contacts/:contacts_id/user/:user_id' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], { role: "nil" })
+      if GitContacts::remove_contacts_user(uid, params[:contacts_id], params[:user_id])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Delete user from contacts failed."
-        status 500
+        status 403
       end
     else
       @return_message[:errmsg] = "Token invalid."
@@ -104,7 +105,7 @@ class App
   # code review: @AustinChou
   put '/contacts/:contacts_id/user/:user_id/privilege' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], @body[:payload])
+      if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], @body[:role])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Change user privilege failed."

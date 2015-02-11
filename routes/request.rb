@@ -26,7 +26,7 @@ class App
   # code review: @AustinChou
   put '/contacts/:contacts_id/request/:request_id/status' do
     if uid = session[:uid]
-      if GitContacts::edit_request_status(uid, params[:contacts_id], params[:request_id], params[:payload])
+      if GitContacts::edit_request_status(uid, params[:contacts_id], params[:request_id], @body[:action])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Change request status failed."

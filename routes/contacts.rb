@@ -46,9 +46,10 @@ class App
   get '/contacts/:contacts_id' do
     if uid = session[:uid]
       @return_message[:success] = 1
-      @return_message[:contact] = GitContacts::get_contacts_if uid do |contact|
+      contacts = GitContacts::get_contacts_if uid do |contact|
         contact[:gid] == params[:contacts_id]
       end
+      @return_message[:contact] = contacts.first
     else
       @return_message[:errmsg] = 'Token invalid'
       status 401
@@ -59,8 +60,7 @@ class App
   # code review: @abbshr
   put '/contacts/:contacts_id/metadata' do
     if uid = session[:uid]
-      puts @body[:contacts_id], @body[:metadata]
-      if GitContacts::edit_contacts_meta(uid, @body[:contacts_id], @body[:metadata])
+      if GitContacts::edit_contacts_meta(uid, params[:contacts_id], @body[:metadata])
         @return_message[:success] = 1
       else
         @return_message[:errmsg] = "Edit contacts metadata failed."
