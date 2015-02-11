@@ -73,11 +73,11 @@ class App
 
    get '/contacts/:contacts_id/user/:user_id' do
     if uid = session[:uid]
-      if @return_message[:user] = GitContacts::get_contacts_user_privileges(uid, params[:contacts_id], params[:user_id])
+      if @return_message[:privilege] = GitContacts::get_contacts_user_privileges(uid, params[:contacts_id], params[:user_id])
         @return_message[:success] = 1
       else
         status 404
-        @return_message[:errmsg] = "User not found"
+        @return_message[:errmsg] = "User isn't a mermber of contacts"
       end
     else
       status 401
