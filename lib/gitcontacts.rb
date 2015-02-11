@@ -212,10 +212,8 @@ module GitContacts
 
     def get_contacts_user_privileges operator, gid, uid
       return unless GitContacts::relation_valid?(operator, gid)
-      privilege = 'nil'
       privilege = 'user' if contacts.getusers.include? uid 
       privilege = 'admin' if contacts.getadmins.include? uid
-      privilege
     end
     
     # code review: @AustinChou
