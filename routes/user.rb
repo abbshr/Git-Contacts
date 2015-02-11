@@ -48,6 +48,17 @@ class App
     @return_message.to_json
   end
 
+  get '/users'
+    if uid = session[:uid]
+      @return_message[:users] = GitContacts::get_users uid
+      @return_message[:success] = 1
+    else
+      @return_message[:errmsg] = "Token invalid"
+      status 401
+    end
+    @return_message.to_json
+  end
+
   get '/user/:user_id' do
     if uid = session[:uid]
       @return_message[:user] = GitContacts::get_a_user uid, params[:user_id]
