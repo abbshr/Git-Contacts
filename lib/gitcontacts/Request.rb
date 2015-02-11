@@ -95,7 +95,9 @@ module GitContacts
 
     def deny
       # deny merge here
-      GitContacts::Request::delete @obj.request_id
+      author = User.new getuid
+      author.remove_request @obj.request_id
+      Request::delete @obj.request_id
     end
   end
 

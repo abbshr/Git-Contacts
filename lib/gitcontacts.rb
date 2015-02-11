@@ -236,29 +236,6 @@ module GitContacts
         end
       end
     end
-=begin
-    def invite_contacts_user operator, gid, payload
-      return unless result = GitContacts::relation_valid?(operator, gid)
-      user = result.first
-      contacts = result.last
-      if contacts.getadmins.include?(user.getuid)
-        Inviation::create :uid => User::email_to_uid(payload[:email]), :contacts => gid
-      end
-    end
-
-    def edit_invitation_status operator, payload
-      invitation = Inviation.new payload[:invite_id]
-      if invitation.accept? operator
-        user = User.new operator
-        gid = invitation.getcontacts
-        user.add_contacts gid
-        contacts = GCContacts.new gid
-        contacts.adduser user.getuid
-        Inviation::delete payload[:invite_id]
-        true
-      end
-    end
-=end
     
     # code review: @AustinChou
     def get_all_requests operator
@@ -296,6 +273,28 @@ module GitContacts
             true
           end
         end
+      end
+    end
+
+    def invite_contacts_user operator, gid, payload
+      return unless result = GitContacts::relation_valid?(operator, gid)
+      user = result.first
+      contacts = result.last
+      if contacts.getadmins.include?(user.getuid)
+        Inviation::create :uid => User::email_to_uid(payload[:email]), :contacts => gid
+      end
+    end
+
+    def edit_invitation_status operator, payload
+      invitation = Inviation.new payload[:invite_id]
+      if invitation.accept? operator
+        user = User.new operator
+        gid = invitation.getcontacts
+        user.add_contacts gid
+        contacts = GCContacts.new gid
+        contacts.adduser user.getuid
+        Inviation::delete payload[:invite_id]
+        true
       end
     end
 
