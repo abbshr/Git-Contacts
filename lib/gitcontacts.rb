@@ -37,7 +37,16 @@ module GitContacts
 
     def get_a_user operator, uid
       return unless User.exist?(operator)
-      User.new uid if User.exist? uid
+      if User.exist? uid
+        user = User.new uid
+        {
+          :uid => user.getuid,
+          :email => user.getemail,
+          :password => user.getpassword,
+          :contacts => user.getcontacts,
+          :request => user.getrequests
+        }
+      end
     end
 
     # code review: @abbshr
@@ -87,7 +96,7 @@ module GitContacts
       return unless GitContacts::relation_valid? operator, gid
       contacts = Gitdb::Contacts.new operator
       contacts.access gid
-      contacts.get_card_by_id(card_id).getdata
+      contacts.get_card_by_id(card_id).getdata.merge! card.getmeta
     end
     # code review: @abbshr
     def get_contacts_cards_by_related operator, gid, keyword
@@ -96,7 +105,7 @@ module GitContacts
       contacts.access gid
       contacts.get_cards do |card|
         info = card.getdata
-        info if (card.getmeta[:owner].include? keyword) || info.find { |k,v| true if v.include? keyword }
+        info.merge! card.getmeta if (card.getmeta[:owner].include? keyword) || info.find { |k,v| true if v.include? keyword }
       end
     end
     # code review: @abbshr
@@ -127,38 +136,47 @@ module GitContacts
     end
     # code review: @abbshr
     def add_contacts_card operator, gid, payload
-      return unless GitContacts::relation_valid? operator, gid
+      return unless result = GitContacts::relation_valid?(operator, gid)
+      user = result.first
       # request id
       qid = Request::create :uid => operator, :gid => gid, :action => "create"
-      # create a rqeuest
+      # create a request
       req = Request.new qid
       if req.auto_merge? operator
         # here should return card_id if success
         cid = req.allow operator
         Request::delete qid
         return cid
+      else
+        user.add_request qid
       end
       true
     end
     # code review: @abbshr
     def edit_contacts_card operator, gid, card_id, payload
-      return unless GitContacts::relation_valid? operator, gid
+      return unless result = GitContacts::relation_valid?(operator, gid)
+      user = result.first
       qid = Request::create :uid => operator, :gid => gid, :action => "setdata", :card_id => card_id, :content => JSON.generate(payload)
       req = Request.new qid
       if req.auto_merge? operator
         req.allow operator
         Request::delete qid
+      else
+        user.add_request qid
       end
       true
     end
     # code review: @abbshr
     def delete_contacts_card operator, gid, card_id
-      return unless GitContacts::relation_valid? operator, gid
+      return unless result = GitContacts::relation_valid?(operator, gid)
+      user = result.first
       qid = Request::create :uid => operator, :gid => gid, :action => "delete", :card_id => card_id
       req = Request.new qid
       if req.auto_merge? operator
         req.allow operator
         Request::delete qid
+      else
+        user.add_request qid
       end
       true
     end
@@ -182,20 +200,28 @@ module GitContacts
         true
       end
     end
+    def remove_contacts_user operator, gid, uid
+      return unless result = GitContacts::relation_valid?(operator, gid)
+      user = result.first
+      contacts = result.last
+      if contacts.getadmins.include?(user.getuid)
+        contacts.remove_user uid
+        true
+      end
+    end
     
     # code review: @AustinChou
     def edit_contacts_user_privileges operator, gid, uid, payload
-      return unless user, contacts = GitContacts::relation_valid?(operator, gid)
-      if contacts.getadmins.include?(user.getuid) && contacts.getusers.include? uid
-        case payload[:role]
+      return unless result = GitContacts::relation_valid?(operator, gid)
+      user = result.first
+      contacts = result.last
+      if contacts.getadmins.include?(user.getuid) && contacts.getusers.include?(uid)
+        case payload
         when "admin"
           contacts.add_admin uid
           true
         when "users"
           contacts.remove_admin uid
-          true
-        when "nil"
-          contacts.remove_user uid
           true
         end
       end
@@ -229,7 +255,7 @@ module GitContacts
       requests = []
       if user = User.new(operator)
         user.getrequests.each do |qid|
-          requests << Request.new qid
+          requests << Request.new(qid)
         end
       end
       requests
@@ -244,15 +270,20 @@ module GitContacts
     # code review: @AustinChou
     def edit_request_status operator, qid, payload
       if req = Request.new(qid)
-        if user, contacts = GitContacts::relation_valid?(operator, req.getgid)
+        if result = GitContacts::relation_valid?(operator, req.getgid)
+          user = result.first
+          contacts = result.last
           if contacts.getadmins.include?(user.getuid)
-            case payload[:action]
+            case payload
             when "permit"
               req.allow operator
               Request::delete qid
             when "reject"
               Request::delete qid
             end
+            author = User.new req.getuid
+            author.remove_request qid
+            true
           end
         end
       end

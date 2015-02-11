@@ -42,7 +42,7 @@ module GitContacts
     end
 
     def getrequests
-      @obj.requests if @obj
+      @obj.requests.members if @obj
     end
 
     def password_correct? sha
