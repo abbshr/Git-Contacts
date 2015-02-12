@@ -5,20 +5,22 @@ class App
   # => /contacts?count=20&filter=gt&name=family
   get '/contacts' do
     if uid = session[:uid]
-      @return_message[:success] = 1
+      params[:name] ||= ''
+      params[:count] = params[:count].to_i || 0
       @return_message[:contacts] = GitContacts::get_contacts_if uid do |contacts|
         case params[:filter]
         when 'eq'
-          cond = contacts[:count] == (params[:count] || 0).to_i
+          cond = contacts[:count] == params[:count]
         when 'gt'
-          cond = contacts[:count] >= (params[:count] || 0).to_i
+          cond = contacts[:count] >= params[:count]
         when 'lt'
-          cond = contacts[:count] <= (params[:count] || 0).to_i
+          cond = contacts[:count] <= params[:count]
         else
           cond = true
         end
-        cond && contacts[:name].include?(params[:name] || '')
+        cond && contacts[:name].include?(params[:name])
       end
+      @return_message[:success] = 1 if GitContacts::errsym == :ok
     else
       @return_message[:errmsg] = "Token invalid."
       status 401
@@ -29,12 +31,13 @@ class App
   # code review: @abbshr
   post '/contacts' do
     if uid = session[:uid]
-      if @return_message[:contacts_id] = GitContacts::add_contacts(uid, @body[:contacts_name])
+      @return_message[:contacts_id] = GitContacts::add_contacts(uid, @body[:contacts_name])
+      case GitContacts::errsym
+      when :ok
         @return_message[:success] = 1
-        status 201
-      else
-        @return_message[:errmsg] = "Create contacts failed."
-        status 500
+      when :miss_args
+        @return_message[:errmsg] = 'Contacts Name is Required'
+        status 400
       end
     else
       @return_message[:errmsg] = "Token invalid."
@@ -45,11 +48,10 @@ class App
 
   get '/contacts/:contacts_id' do
     if uid = session[:uid]
-      @return_message[:success] = 1
-      contacts = GitContacts::get_contacts_if uid do |contact|
-        contact[:gid] == params[:contacts_id]
-      end
-      @return_message[:contact] = contacts.first
+      @return_message[:contact] = GitContacts::get_contacts_if uid do |contact| 
+        contact[:gid] == params[:contacts_id] 
+      end.first
+      @return_message[:success] = 1 if GitContacts::errsym == :ok
     else
       @return_message[:errmsg] = 'Token invalid'
       status 401
@@ -60,11 +62,16 @@ class App
   # code review: @abbshr
   patch '/contacts/:contacts_id/metadata' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_meta(uid, params[:contacts_id], @body[:metadata])
+      GitContacts::edit_contacts_meta(uid, params[:contacts_id], @body[:metadata])
+      case GitContacts::errsym
+      when :ok
         @return_message[:success] = 1
-      else
-        @return_message[:errmsg] = "Edit contacts metadata failed."
-        status 500
+      when :miss_args
+        @return_message[:errmsg] = 'Metadata is Required'
+        status 400
+      when :forbidden
+        @return_message[:errmsg] = "Access Forbidden"
+        status 403
       end
     else
       @return_message[:errmsg] = "Token invalid."
@@ -75,22 +82,39 @@ class App
   
   # code review: @abbshr
   get '/contacts/:contacts_id/history' do
-    uid = session[:uid]
-    if @return_message[:history] = GitContacts::get_contacts_history(uid, params[:contacts_id])
-      @return_message[:success] = 1
+    if uid = session[:uid]
+      @return_message[:history] = GitContacts::get_contacts_history(uid, params[:contacts_id])
+      case GitContacts::errsym
+      when :ok
+        @return_message[:success] = 1
+      when :forbidden
+        @return_message[:errmsg] = 'Access Forbidden'
+        status 403
+      end
+    else
+      @return_message[:errmsg] = "Token invalid."
+      status 401
     end
     @return_message.to_json
   end
 
   # code review: @abbshr
   post '/contacts/:contacts_id/revert' do
-    uid = session[:uid]
-    if @return_message[:oid] = GitContacts::revert_to(uid, params[:contacts_id], @body[:oid])
-      @return_message[:success] = 1
-      status 201
+    if uid = session[:uid]
+      @return_message[:oid] = GitContacts::revert_to(uid, params[:contacts_id], @body[:oid])
+      case GitContacts::errsym
+      when :ok
+        @return_message[:success] = 1
+      when :forbidden
+        @return_message[:errmsg] = 'Access Forbidden'
+        status 403
+      when :non_exist
+        @return_message[:errmsg] = 'Commit Not Found'
+        status 404
+      end
     else
-      @return_message[:errmsg] = "Commit Not Found!"
-      status 404
+      @return_message[:errmsg] = "Token invalid."
+      status 401
     end
     @return_message.to_json
   end

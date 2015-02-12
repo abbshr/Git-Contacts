@@ -35,10 +35,5 @@ class App < Sinatra::Base
   require_relative 'routes/card'
   require_relative 'routes/user'
   require_relative 'routes/request'
-  require_relative 'routes/invitation'
 
-  # defalut 404
-  not_found do
-    { :errmsg => "API NOT FOUND! may be it hasn't been public now." }.to_json
-  end
 end

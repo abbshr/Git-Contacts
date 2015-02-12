@@ -1,8 +1,9 @@
 
 class App
+  # "users": [{ uid: "xxx" }]
   post '/contacts/:contacts_id/invitation' do
     if uid = session[:uid]
-      if @return_message[:request_id] = GitContacts::invite_contacts_user(uid, params[:contacts_id], params[:payload])
+      if GitContacts::invite_contacts_user(uid, params[:contacts_id], @body[:users])
         @return_message[:success] = 1
         status 201
       else

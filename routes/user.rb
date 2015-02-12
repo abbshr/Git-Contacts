@@ -4,7 +4,7 @@ class App
   # code review: @abbshr
   post '/login' do
     unless session[:uid]
-      if user = GitContacts::password_valid?(@body[:email], @body[:password])
+      if GitContacts::password_valid?(@body[:email], @body[:password])
         # mark email as uid
         session[:uid] = @body[:email]
         @return_message[:success] = 1
@@ -18,15 +18,19 @@ class App
     end
     @return_message.to_json
   end
-  
-  # code review: @abbshr
+
   post '/register' do 
     unless session[:uid]
-      if GitContacts::create_user(@body)
-        session[:uid] = @body[:email]
+      GitContacts::create_user(@body)
+      case GitContacts::errsym
+      when :ok
         @return_message[:success] = 1
-      else
-        @return_message[:errmsg] = "Create user failed."
+        session[:uid] = @body[:email]
+      when :miss_args
+        @return_message[:errmsg] = 'Missing Email or Password'
+        status 400
+      when :exist
+        @return_message[:errmsg] = 'Email has been Taken'
         status 409
       end
     else
@@ -48,21 +52,27 @@ class App
     @return_message.to_json
   end
 
-  get '/users'
+  get '/users' do
     if uid = session[:uid]
       @return_message[:users] = GitContacts::get_users uid
-      @return_message[:success] = 1
+      @return_message[:success] = 1 if GitContacts::errsym == :ok
     else
       @return_message[:errmsg] = "Token invalid"
       status 401
     end
     @return_message.to_json
   end
-
+  
   get '/user/:user_id' do
     if uid = session[:uid]
       @return_message[:user] = GitContacts::get_a_user uid, params[:user_id]
-      @return_message[:success] = 1
+      case GitContacts::errsym
+      when :ok 
+        @return_message[:success] = 1
+      when :non_exist 
+        @return_message[:errmsg] = "User Not Found"
+        status 404
+      end
     else
       @return_message[:errmsg] = "Token invalid"
       status 401
@@ -73,8 +83,14 @@ class App
   # code review: @abbshr
   get '/contacts/:contacts_id/users' do
     if uid = session[:uid]
-      @return_message[:success] = 1
       @return_message[:users] = GitContacts::get_contacts_users uid, params[:contacts_id]
+      case GitContacts::errsym
+      when :ok
+        @return_message[:success] = 1
+      when :forbidden
+        @return_message[:errmsg] = 'Access Forbidden'
+        status 403
+      end
     else
       @return_message[:errmsg] = "Token invalid."
       status 401
@@ -82,13 +98,34 @@ class App
     @return_message.to_json
   end
 
-   get '/contacts/:contacts_id/user/:user_id' do
+  post '/contacts/:contacts_id/user' do
     if uid = session[:uid]
-      if @return_message[:privilege] = GitContacts::get_contacts_user_privileges(uid, params[:contacts_id], params[:user_id])
+      GitContacts::add_contacts_user uid, params[:contacts_id], @body[:uid]
+      case GitContacts::errsym
+      when :ok
         @return_message[:success] = 1
-      else
+      when :non_exist
+        @return_message[:errmsg] = 'User Not Found'
         status 404
-        @return_message[:errmsg] = "User isn't a mermber of contacts"
+      when :forbidden
+        @return_message[:errmsg] = 'Access Forbidden'
+        status 403
+      end
+    else
+      @return_message[:errmsg] = 'Token invalid'
+    end
+    @return_message.to_json
+  end
+
+  get '/contacts/:contacts_id/user/:user_id/privilege' do
+    if uid = session[:uid]
+      @return_message[:privilege] = GitContacts::get_contacts_user_privileges(uid, params[:contacts_id], params[:user_id])
+      case GitContacts::errsym
+      when :ok
+        @return_message[:success] = 1
+      when :forbidden
+        @return_message[:errmsg] = 'Access Forbidden'
+        status 403
       end
     else
       status 401
@@ -100,10 +137,12 @@ class App
   # code review: @AustinChou
   delete '/contacts/:contacts_id/user/:user_id' do
     if uid = session[:uid]
-      if GitContacts::remove_contacts_user(uid, params[:contacts_id], params[:user_id])
+      GitContacts::remove_contacts_user(uid, params[:contacts_id], params[:user_id])
+      case GitContacts::errsym
+      when :ok
         @return_message[:success] = 1
-      else
-        @return_message[:errmsg] = "Delete user from contacts failed."
+      when :forbidden
+        @return_message[:errmsg] = 'Access Forbidden'
         status 403
       end
     else
@@ -116,11 +155,15 @@ class App
   # code review: @AustinChou
   patch '/contacts/:contacts_id/user/:user_id/privilege' do
     if uid = session[:uid]
-      if GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], @body[:role])
+      GitContacts::edit_contacts_user_privileges(uid, params[:contacts_id], params[:user_id], @body[:role])
+      case GitContacts::errsym
+      when :ok
         @return_message[:success] = 1
-      else
-        @return_message[:errmsg] = "Change user privilege failed."
-        status 500
+      when :bad_args
+        @return_message[:errmsg] = 'Invalid role'
+      when :forbidden
+        @return_message[:errmsg] = 'Access Forbidden'
+        status 403
       end
     else
       @return_message[:errmsg] = "Token invalid."
@@ -128,5 +171,4 @@ class App
     end
     @return_message.to_json
   end
-
 end
