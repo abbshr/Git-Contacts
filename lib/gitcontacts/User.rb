@@ -3,16 +3,14 @@ module GitContacts
   class User
 
     def self::exist? email
-      true if UserObject::exist?(email)
+      UserObject::exist?(email)
     end
 
     def self::create hash
       # some keys are optional
-      if hash.keys.include?(:email) && hash.keys.include?(:password) && !User::exist?(hash[:email])
-        obj = UserObject.new
-        obj.set_email hash[:email]
-        obj.password = Digest::MD5.hexdigest(hash[:password])
-      end
+      obj = UserObject.new
+      obj.set_email hash[:email]
+      obj.password = Digest::MD5.hexdigest(hash[:password])
     end
 
     def self::all
@@ -47,6 +45,15 @@ module GitContacts
 
     def getrequests
       @obj.requests.members if @obj
+    end
+
+    def getinfo
+      {
+        :uid => getuid,
+        :email => getemail,
+        :contacts => getcontacts,
+        :request => getrequests
+      }
     end
 
     def password_correct? sha

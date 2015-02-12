@@ -6,17 +6,16 @@ module GitContacts
       true if ContactsObject::exist?(gid)
     end
 
-    def self::create gid, hash
-      # some keys are optional
-      if hash.keys.include?(:name)
-        obj = ContactsObject.new
-        obj.set_gid gid
-        obj.name = hash[:name]
-        obj.note = hash[:note] if hash.has_key?(:note)
-        #obj.users << gid
-        #obj.admins << gid
-        obj.gid
-      end
+    def self::create uid, hash
+      # some keys are optional  
+      gid = Gitdb::Contacts.new(uid).create(hash[:name]).getmeta[:gid]
+      obj = ContactsObject.new
+      obj.set_gid gid
+      obj.name = hash[:name]
+      obj.note = hash[:note] if hash.has_key?(:note)
+      obj.users << uid
+      obj.admins << uid
+      gid
     end
 
     def initialize gid
@@ -35,6 +34,10 @@ module GitContacts
       @obj.admins if @obj
     end
 
+    def getrequests
+      @obj.requests if @obj
+    end
+
     def add_user uid
       @obj.users << uid if @obj
     end
@@ -43,12 +46,20 @@ module GitContacts
       @obj.admins << uid if @obj
     end
 
+    def add_request request_id
+      @obj.requests << request_id if @obj
+    end
+
     def remove_user uid
       @obj.users.delete(uid) if @obj
     end
 
     def remove_admin uid
       @obj.admins.delete(uid) if @obj
+    end
+
+    def remove_request request_id
+      @obj.requests.delete request_id if @obj
     end
     
   end
