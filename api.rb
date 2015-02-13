@@ -1,5 +1,7 @@
-$dbg_dir = File.expand_path '../gitcontacts/lib', ''
-$LOAD_PATH << $dbg_dir unless !Dir.exist?($dbg_dir) || $LOAD_PATH.include?($dbg_dir)
+$dbg_gitcontact_dir = File.expand_path '../gitcontacts/lib', ''
+$LOAD_PATH << $dbg_gitcontact_dir unless !Dir.exist?($dbg_gitcontact_dir) || $LOAD_PATH.include?($dbg_gitcontact_dir)
+$dbg_gitdb_dir = File.expand_path '../gitdb/lib', ''
+$LOAD_PATH << $dbg_gitdb_dir unless !Dir.exist?($dbg_gitdb_dir) || $LOAD_PATH.include?($dbg_gitdb_dir)
 
 require 'sinatra'
 require 'sinatra/base'
