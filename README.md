@@ -1,6 +1,6 @@
 # Gc::Restful::Api
 
-TODO: Write a gem description
+A Rack middleware of RESTful API for Git-Contacts.
 
 ## Installation
 
@@ -20,12 +20,21 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+  require "erb"
+  require 'sinatra'
+  require "sinatra/config_file"
+  require "gc-restful-api"
 
-## Contributing
+  register Sinatra::ConfigFile
 
-1. Fork it ( https://github.com/[my-github-username]/gc-restful-api/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+  # load configration
+  config_file "config.yml"
+
+  get '/' do
+    content_type 'text/html'
+    erb :index
+  end
+
+  use App
+```
