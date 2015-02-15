@@ -1,9 +1,4 @@
-source 'http://ruby.taobao.org'
+source 'https://rubygems.org'
 
-gem 'sinatra'
-gem 'thin'
-gem 'redis-sinatra'
-gem 'redis'
-gem 'gitcontacts'
-gem 'sinatra-contrib'
-gem 'moneta'
+# Specify your gem's dependencies in gc-restful-api.gemspec
+gemspec
