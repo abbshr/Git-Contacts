@@ -19,9 +19,17 @@ Git Contacts在Git仓库的基础上进行封装，Git仓库仅做通讯录数�
 
 ### 系统设计
 
-需要用户登录。用户加入群组后自动生成空白名片，对此名片，用户不可删除但本人可随意修改。对其他名片，用户修改放入等待队列。
+Git-Contacts的系统由三部分组成，每部分负责任务不同，各部分独立为一个开发分支
 
-用户可以加入多个群组，群组间名片不共享。
+- Gitdb
+- Git-Contacts
+- Web-Service
+
+Gitdb 负责底层的数据存储，比如 Card 和 Contacts 的底层读写，封装了Git的常用操作。
+
+Git-Contacts 负责上层的数据存储，比如用户管理、读写权限管理、Request 管理等操作。
+
+Web-Service 负责 RESTful API 部分，将 payload 传至 Git-Contacts
 
 ### To-do
 
