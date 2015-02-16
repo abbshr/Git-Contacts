@@ -1,102 +1,188 @@
-var LoginAndRegister = React.createClass({
+var App = React.createClass({
+  render: function () {
+    var ret;
+    switch (this.state.layer) {
+      case 'contacts':
+        ret = (
+          <NavBar  />
+          <ContactsList  data={this.state.data}/>
+        );
+      case 'card':
+        ret = (
+          <NavBar  />
+          <CardList data={this.state.data} />
+        );
+    }
+    return ret;
+  },
+  getInitialState: function () {
+    return { data: [], layer: 'contacts' };
+  },
+  createContacts: function () {},
+  queryContacts: function () {},
+  getPersonalInfo: function () {},
+  getAllRequests: function () {},
+  logout: function () {},
+  getHistory: function () {},
+  revertHisotry: function () {},
+  createCard: function () {},
+  deleteCard: function () {},
+  modifyCard: function () {},
+  queryCards: function () {},
+  getCard: function () {},
+  getUsers: function () {},
+  addUser: function () {},
+  delUser: function () {},
+  updateUserPrivilege: function () {},
+  getUser: function () {}
+});
+
+var NavBar = React.createClass({
   render: function () {
     return (
-      <form class="ui form">
-        <div class="two fields">
-          <div class="required field">
-            <div class="ui icon input">
-              <input type="text" name="email" placeholder="Email" ref="email" />
-              <i class="user icon"></i>
+      <div className="row">
+        <div className="col-md-10 col-md-offset-1">
+          <nav className="navbar navbar-default">
+            <div className="container-fluid">
+              <div className="navbar-header">
+                <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                  <span className="sr-only">Toggle navigation</span>
+                  <span className="icon-bar"></span>
+                  <span className="icon-bar"></span>
+                  <span className="icon-bar"></span>
+                </button>
+                <a className="navbar-brand" href="/">
+                  <i className="fa fa-git-square fa-2"></i> 
+                  Git Contacts
+                </a>
+              </div>
+              <div className="collapse navbar-collapse">
+                <ul className="nav navbar-nav">
+                  <li><a href="#" ref='create'>
+                    创建群组 <i className="fa fa-users fa-1"></i>
+                  </a></li>
+                </ul>
+                <form className="navbar-form navbar-left" role="search" onSubmit={this.onSubmit}>
+                  <div className="form-group">
+                    <input type="text" className="form-control" placeholder="查找群组" ref='query' />
+                  </div>
+                </form>
+                <ul className="nav navbar-nav">
+                  <li><a href="#">个人信息 <i className="fa fa-user"></i></a></li>
+                  <li><a href="#">全部请求 <i className="fa fa-rocket"></i></a></li>
+                  <li><a href="#" onClick={this.onClick}>注销 <i className="fa fa-sign-out"></i></a></li>
+                </ul>
+              </div>
             </div>
-          </div>
-          <div class="required field">
-            <div class="ui icon input">
-              <input type="password" name="password" placeholder="Password" ref="password" />
-              <i class="lock icon"></i>
-            </div>
-          </div>
-          <button class="ui submit button" type="button" onClick={ this.onClick } url={ this.props.register }>
-            Register
-          </button>
-          <button class="ui submit button" type="button" onClick={ this.onClick } url={ this.props.login }>
-            Login
-          </button>
+          </nav>
         </div>
-      </form>
+      </div>
     );
   },
-  onClick: function (e) {
-    this.onSubmit(e.target.getAttribute('url'));
-  },  
-  onSubmit: function (url) {
-    var auth = {
-      "email": this.refs.email.getDOMNode().value.trim(),
-      "password": this.refs.password.getDOMNode().value.trim()
-    };
-    this.props.onSubmit(url, auth);
+  onClick: function () {
+    $.ajax({
+      url: '/logout',
+      dataType: 'json',
+      type: "GET",
+      success: function (data) {
+        window.location.reload();
+      }
+    });
+  },
+  onSubmit: function () {
+    e.preventDefault();
+    var qs = this.refs.query.getDOMNode().value.trim();
+    var data = qs.split(';');
+  
+    $.ajax({
+      url: '/contacts',
+      dataType: 'json',
+      type: "GET",
+      data: qs
+      success: function (data) {
+        
+      }
+    });
   }
 });
 
-var App = React.createClass({
+var ContactsList = React.createClass({
   render: function () {
-    if (this.state.login) {
-      return (<Contacts>);
-    } else {
-      if (this.state.err) {
-        return (<Error status={ this.state.status } err={ this.state.err }>);
-      } else {
-        return (<LoginAndRegister login='/login' register='/register' onSubmit={ this.handleSubmit }>);
-      }
-    }
-    return (<LoginAndRegister login='/login' register='/register' onSubmit={this.handleSubmit}>);
-  },
-  handleSubmit: function (url, auth) {
-    $.ajax({
-      url: url,
-      dataType: 'json',
-      type: 'POST',
-      data: auth,
-      success: (function (data) {
-              this.setState({ login: true });
-            }).bind(this),
-      error: (function (xhr, status, err) {
-              this.setState({ err: err, status: status });
-            }).bind(this)
+    var list = this.props.data.map(function (contacts) {
+      return (
+        <div className="col-md-4">
+          <Contacts data={contacts}/>
+        </div>
+      );
     });
-  },
-  getInitialState: function () {
-    return { 
-      login: false,
-      err: null,
-      status: null
-    };
+    return (
+      <div className="row">
+        {list}
+      </div>
+    );
   }
 });
 
 var Contacts = React.createClass({
   render: function () {
     return (
-      <div class="ui "></div>
-    );
-  }
-});
-var Error = React.createClass({
-  render: function () {
-    return (
-      <div class="ui floating negative message">
-        <i class="close icon"></i>
-        <div class="header">
-          this.props.status
+      <div className="panel panel-default">
+        <div className="panel-body">
+          <h4 className="text-center">{this.props.name}</h4>
         </div>
-        <p>this.props.err</p>
+        <div className="panel-footer">
+          <p className="text-justify">
+            人数: {this.props.count},
+            创建者: {this.props.owner},
+            ID: {this.props.gid}
+          </p>
+        </div>
       </div>
     );
-  },
-  componentDidMount: function () {
-    $('.message .close').on('click', function() {
-      $(this).closest('.message').fadeOut();
-    });
   }
 });
 
-React.render(<App />, $('#main'));
+var CardList = React.createClass({
+  render: function () {
+    var list = this.props.data.map(function (card) {
+      return (
+        <div className="col-md-6">
+          <Card data={card} />
+        </div>
+      );
+    });
+    return (
+      <div className="row">
+        {list}
+      </div>
+    );
+  }
+});
+
+var Card = React.createClass({
+  render: function () {
+    var tbody = Object.keys(this.props.data).map(function (k) {
+      return (
+        <tr>
+          <th scope="row">{k}</th>
+          <td>{this.props.data[k]}</td>
+        </tr>
+      );
+    });
+    return (
+      <div class="panel panel-default">
+        <div class="panel-heading">Panel heading</div>
+        <div class="panel-body">
+          <p>Some default panel content here. Nulla vitae elit libero, a pharetra augue. Aenean lacinia bibendum nulla sed consectetur. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+        </div>
+        <table class="table">
+          <tbody>
+            {tbody}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+});
+
+React.render(<App />, document.querySelector('#main'));

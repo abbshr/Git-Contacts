@@ -10,7 +10,12 @@ config_file "config.yml"
 
 get '/' do
   content_type 'text/html'
-  erb :index
+  erb :index, :locals => { :session => session[:uid] }
+end
+
+get '/inspect' do
+  content_type 'text/html'
+  erb :inspect
 end
 
 use App

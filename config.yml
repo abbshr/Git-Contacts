@@ -1,15 +1,15 @@
 development:
   port: 8080
   logging: true
-  public_folder: '../static'
-  views: '../views'
+  public_folder: 'static'
+  views: 'views'
 production:
   port: 80
   logging: false
-  public_folder: '../static'
-  views: '../views'
+  public_folder: 'static'
+  views: 'views'
 test:
   port: 8080
   logging: true
-  public_folder: '../static'
-  views: '../views'
+  public_folder: 'static'
+  views: 'views'
