@@ -34,16 +34,52 @@
             <!-- Tab panes -->
             <div class="tab-content">
               <div role="tabpanel" class="tab-pane fade in active" id="home">
-                <p>这是一个基于Git官方库libgit2开发的通讯录应用</p>
+                <p class="text-center">
+                  Git Contacts 专注为团体或组织提供有质量保障的共享通讯录服务。
+                </p>
               </div>
               <div role="tabpanel" class="tab-pane fade" id="profile">
                 <p>从注册开始</p>
               </div>
               <div role="tabpanel" class="tab-pane fade" id="deeper">
-                <p>它是如何工作的</p>
+                <div class="page-header">
+                  <h1>Dig Deeper <small>它是如何工作的?</small></h1>
+                </div>
+                <h3 class="bg-info">技术栈</h3>
+                <p>Git Contacts 是一个基于Git官方库libgit2开发的通讯录应用.</p>
+                <p>除此之外, 很多Ruby和JavaScript开源框架/库也为它提供了支持.</p>
+                <p>我们将Git Contacts划分成三层进行开发</p>
+                <p>后台服务由Sinatra构建, 我们使用了大量第三方模块: sinatra, sinatra-contrib, thin, moneta. 提供了一个RESTful风格的Web API模块(web-service), 这个模块暴漏了GitContacts的全部功能.</p>
+                <p>Gitdb模块支配整个应用的核心操作, 内部依赖了Ruby库rugged.</p>
+                <p>gitcontacts层接管了用户权限, 访问控制等等业务逻辑, 它封装了Gitdb的底层操作. 这一层仍然使用了一些第三方开源模块, 如redis-object, redis</p>
+
+                <p>
+                  Git Contacts 每个用户可以拥有任意数量的联系人群组，你可以把它们划分为不同类型的圈子。联系人群组也允许拥有者添加任意数量的联系人卡片。
+                </p>
+                <p>
+                  不过到此为止，这些都是一个标准通讯录应用的最基本功能。
+                </p>
+                <h3 class="bg-danger">邀请共享</h3>
+                <p>
+                  多个用户之间可以通过互相邀请的方式共享联系人群组。如果你是一个群组的创建者或管理员，即可将其他用户添加为这个群组的成员，这样被邀请的用户就可以查看群组里的联系人卡片了。
+</p>
+<h3 class="bg-warning">访问控制</h3>
+<p>
+                  Git Contacts 对待联系人卡片的修改、创建、删除操作十分谨慎，除非你是这个群组的管理员，否则默认的响应行为是pending（等待审核）。换句话说，如果你是该群组的普通用户，每个操作将会成为一个请求，直到管理员批准这条操作或是拒绝这次请求。这么设计的原因是为了避免一般通讯录对联系人信息的修改不做限制而导致通讯录变得极度混乱等令人头疼的问题。
+</p>
+                <h3 class="bg-success">操作回滚</h3>
+                <p>
+                  但是管理员也有头昏的时候。可能一个组织觉得Git Contacts 默认的pending操作太碍事，于是所有用户都被提升为管理员。这原本是个危险的操作，不过还好，我们有最后的王牌：revert（撤销）操作。Git Contacts 利用git commit的一大特性，将每个群组中的每次实际操作记录下来（这里保存的是状态而非动作），形成一条条历史记录。因此你可以随时随地浏览这些历史操作，并轻松恢复到某个版本，当然，这次回滚操作也会被保存下来追加到历史记录中。
+</p><p>
+                  所以无论你怎么修改，如何折腾，依然可以回退到你认为正确的版本，不会有丢失或断档。
+</p>
+<h3 class="bg-success">查询接口</h3>
+<p>
+                  除此之外，Git Contacts 还支持模糊查询，按条件或关键字查找群组和卡片。
+</p>
               </div>
               <div role="tabpanel" class="tab-pane fade" id="settings">
-                <p>开发者: 来自HIT的超级英雄</p>
+                <p class="text-center">开发者: 来自HIT的超级英雄团体<i class="fa fa-heart"></i></p>
               </div>
             </div>
 
