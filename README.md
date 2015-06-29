@@ -7,6 +7,8 @@ a simple data storage based on git, designed for Git-Contacts
 
 ## Installation
 
+**CMake is required!**
+
 Add this line to your application's Gemfile:
 
 ```ruby
