@@ -1,5 +1,5 @@
 development:
-  port: 8080
+  port: 2333
   logging: true
   public_folder: 'static'
   views: 'views'
